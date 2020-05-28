@@ -418,13 +418,13 @@ function loadTab(obj, n) {
 
 
 }
-function chk(input) {
+/*function chk(input) {
   for (var i = 0; i < document.form1.c1.length; i++) {
     document.form1.c1[i].checked = false;
   }
   input.checked = true;
   return true;
-}
+}*/
 
 /*select選擇->改變分頁內容*/
 function changeObjectAttributes() {

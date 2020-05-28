@@ -44,6 +44,7 @@ var codeValue;
 var xmlhttp = new XMLHttpRequest();
 var computeEndCode;
 var errMessage;
+var socket = io();
 xmlhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
         codeValue = this.responseText;
@@ -62,6 +63,12 @@ var equipmentData;
 // };
 // xmlhttp.open("GET", "json/equipment.json", true);
 // xmlhttp.send();
+
+socket.on('answer', function(obj) {
+  if (obj.cpuUsage != null && obj.memoryUsage != null) {
+    decode_JDOODLE_api(obj.stdout);
+  }
+});
 
 var initCode = [
     `
@@ -1756,33 +1763,7 @@ function call_JDOODLE_api(scriptData, inputData) {
         id: "001"
     }
     // console.log(scriptData);
-    var socket = io();
     socket.emit('script', scriptData);
-    //   output.innerHTML = "編譯中....\n";
-    socket.on('answer', function (obj) {
-        // console.log(obj);
-
-        if (obj.body.cpuTime != null && obj.body.memory != null) {
-            //   output.innerHTML = "輸出:\n" + obj.body.output;
-            decode_JDOODLE_api(obj.body.output)
-        }
-        else {
-            gameEndingCode = 5;
-            if (obj.body.output != null) {
-                if (obj.body.output.indexOf("JDoodle - output Limit reached.") > -1) {
-                    gameEndingCode = 8;
-                }
-                else{
-                    errMessage="錯誤原因:\n"+obj.body.output.substr(1)
-                }
-            }
-
-            closeLoadingView();
-            // console.log("Error =  compiler error");
-            endgame();
-        }
-
-    });
 }
 function decode_JDOODLE_api(str) {
     // console.log(str);
