@@ -111,11 +111,18 @@ function updateUsersList(user, i) {
   html = `<li class="clearfix" id="user-${user.userId}">
              <img src="/img/player${i+1}.png" alt="${user.name}" />
              <div class="about">
-                <div class="name"> <i class="fa fa-circle online"></i> ${user.name} <span class="status">完成準備</span> </div>
+                <div class="name"> <i class="fa fa-circle online"></i> ${user.name} <span class="status">完成準備</span></div>
              </div>
           </li>`;
 
+
+
   $('.users-list ul').append(html);
+
+  if(user.playerStatus){
+    var player = "#user-" + user.userId + " .status" //把按下準備按鈕的玩家的狀態顯示出來
+    $(player).toggle();
+  }
   updateNumOfUsers();
 }
 
