@@ -359,7 +359,7 @@ function endgame() {
     //console.log("test:", dx, " test ", old_PeooleX);
     // console.log(ddx, " ", ddy);
     //if (ddx < stepSpeed * 2 && ddy < stepSpeed * 2) {
-    if (dx == p1_x && dy == p1_y /*&& dx == p2_x && dy == p2_y && dx == p3_x && dy == p3_y && dx == p4_x && dy == p4_y*/ ) {
+    if (dx == p1_x && dy == p1_y && dx == p2_x && dy == p2_y && dx == p3_x && dy == p3_y && dx == p4_x && dy == p4_y ) {
       //if (drotate == (((old_PeooleEESW + 360) % 180) + 90) % 180) {
       gameEndingCode = 1;
     } else {
@@ -868,7 +868,7 @@ function draw() {
                 break;
             }*/
           }
-          if (!delFlag && ip1Flag /* && ip2Flag && ip3Flag && ip4Flag*/ ) {
+          if (!delFlag && ip1Flag  && ip2Flag && ip3Flag && ip4Flag ) {
             delFlag = true;
             for (let d = 0; d < mapObject.length; d++) {
               if (mapObject[d].type == "unmoveble") {
