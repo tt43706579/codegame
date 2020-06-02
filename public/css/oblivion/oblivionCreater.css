@@ -36,43 +36,8 @@
   top: 0px;
   background-color: rgba(0, 0, 0, 0.74);
 }
-#helperTextarea1{
-  height: 50%;
-  width: 40%;
-  font-size: 1.5vw;
-  font-family:Microsoft JhengHei;
-  line-height: 2vw;
-  text-align: left;
-  background-color: transparent;
-  position: absolute;
-  top: 15%;
-  left: 5%;
-}
-#helperTextarea2{
-  height: 25%;
-  width: 90%;
-  font-size: 1.5vw;
-  font-family:Microsoft JhengHei;
-  line-height: 2vw;
-  text-align: left;
-  background-color: transparent;
-  position: absolute;
-  top: 70%;
-  left: 5%;
-  padding-bottom: 12vh;
-}
-#helperTextarea3{
-  height: 80%;
-  width: 80%;
-  font-size: 1.5vw;
-  font-family:Microsoft JhengHei;
-  line-height: 2vw;
-  text-align: left;
-  background-color: transparent;
-  position: absolute;
-  left: 10%;
-  margin-top: 2vh;
-}
+
+
 #helperImgDiv1,#helperImgDiv2{
   height: 18vh;
   width: 45%;

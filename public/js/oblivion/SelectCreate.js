@@ -1,19 +1,18 @@
 function back() {
-  var index = 0;
-  var href = window.location.href;
-  for (var i = 0; i < href.length; ++i) {
-    if (href[i] == '/' || href[i] == "\\") {
-      index = i;
-    }
-  }
-  href = href.substr(0, index + 1);
-  window.location.replace(href);
+  window.history.back();
 }
 var href = window.location.href;
-var user, equipmentData, achievemenData, dictionaryData, levelDivAlive = false,isOblivionOpen;
-var swordLevel = 0, shieldLevel = 0, levelUpLevel = 0, musicLevel = 1, bkMusicSwitch, bkMusicVolumn = 0.1, args, gameSpeed;
+var user, equipmentData, achievemenData, dictionaryData, levelDivAlive = false,
+  isOblivionOpen;
+var swordLevel = 0,
+  shieldLevel = 0,
+  levelUpLevel = 0,
+  musicLevel = 1,
+  bkMusicSwitch, bkMusicVolumn = 0.1,
+  args, gameSpeed;
 var musicData;
-var userMap, completUserMap, oldDisMapNum = 0, playMap = [];
+var userMap, completUserMap, oldDisMapNum = 0,
+  playMap = [];
 
 
 
@@ -24,12 +23,12 @@ var scriptData = {
 }
 
 $.ajax({
-  url: "oblivion",              // 要傳送的頁面
-  method: 'POST',               // 使用 POST 方法傳送請求
-  dataType: 'json',             // 回傳資料會是 json 格式
-  data: scriptData,  // 將表單資料用打包起來送出去
-  async:false,
-  success: function (res) {
+  url: "oblivion", // 要傳送的頁面
+  method: 'POST', // 使用 POST 方法傳送請求
+  dataType: 'json', // 回傳資料會是 json 格式
+  data: scriptData, // 將表單資料用打包起來送出去
+  async: false,
+  success: function(res) {
     // console.log(res);
     user = res;
     initHome();
@@ -41,6 +40,7 @@ function error() {
   window.location.replace(href);
 
 }
+
 function initHome() {
   var userName = document.getElementById("userName");
   var starNumber = document.getElementById("starNumber");
@@ -53,7 +53,7 @@ function initHome() {
   shieldLevel = user.armorLevel;
 }
 
-function logout(){
+function logout() {
   var href = "/logout";
   window.location.replace(href);
 }
@@ -65,12 +65,12 @@ function clossFunc(thisDiv, thisDiv2) {
   try {
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) { }
+  } catch (e) {}
   divTag = document.getElementById(thisDiv2);
   try {
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) { }
+  } catch (e) {}
   levelDivAlive = false;
 }
 
@@ -86,7 +86,9 @@ var dataTitle = ["帳&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbs
   "主&nbsp要&nbsp進&nbsp&nbsp度：",
   "成&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp就：",
   "上架地圖數：",
-  "已獲得星星數："];
+  "已獲得星星數："
+];
+
 function userData() {
   try {
     divTag = document.getElementById("userDataView");
@@ -115,6 +117,7 @@ function userData() {
   divTag.appendChild(b);
   createUserView(divID);
 }
+
 function clossFunc(thisDiv, thisDiv2) {
   divTag = document.getElementById(thisDiv);
   parentObj = divTag.parentNode;
@@ -124,6 +127,7 @@ function clossFunc(thisDiv, thisDiv2) {
   parentObj.removeChild(divTag);
   levelDivAlive = false;
 }
+
 function createUserView(mainDiv) {
   divTag = document.getElementById(mainDiv);
   b = document.createElement("h1");
@@ -162,8 +166,8 @@ function createUserView(mainDiv) {
       }
     } else if (i == 3) {
       var getAchievement = Session.get("getAchievement");
-      if(getAchievement == undefined){
-        getAchievement=0;
+      if (getAchievement == undefined) {
+        getAchievement = 0;
         // console.log("this is undefine");
       }
       userdataFont = getAchievement + "/9";
@@ -176,9 +180,9 @@ function createUserView(mainDiv) {
     for (var j = 0; j < 2; j++) {
       divTag = document.getElementById("userTr" + i);
       b = document.createElement("td");
-      if(j%2 == 0){
+      if (j % 2 == 0) {
         b.innerHTML = dataTitle[i];
-      }else{
+      } else {
         b.innerHTML = userdataFont;
       }
       divTag.appendChild(b);

@@ -1,4 +1,3 @@
-
 var mapNum = "game01";
 var map;    ///0 是草地  1是沙漠  2是海洋
 var people_init;    //x,y,面相   0->  1^  2<-  3 down
@@ -47,12 +46,7 @@ levelDescriptionTextarea.onchange = function () {
     changeFile = true;
 }
 
-codingTextarea.onchange = function () {
-    changeFile = true;
-    // console.log(codingTextarea.value);
-    codingTextarea = document.getElementById('codingTextarea');
-    data.extendCode = codingTextarea.value;
-}
+
 
 lockAnswerTextarea.onchange = function () {
 
@@ -739,7 +733,7 @@ function updateCanvas() {
     for (var y = 0; y < mapSize; ++y) {
         for (var x = 0; x < mapSize; ++x) {
             var i = y * mapSize + x;
-            
+
             if (mapType == '0') {
                 // backgroundGraph.fill('#bafba7');
                 image(imgTest, x * edgeToWidth, y * edgeToHeight, edgeToWidth, edgeToHeight);
@@ -827,7 +821,7 @@ function updateCanvas() {
     var img = imgObject[parseInt(imgDic["start"])];
     image(img, dx, dy, edgeToEdge, edgeToEdge);
     image(pg, dx, dy, edgeToEdge, edgeToEdge);
-    
+
     var pg = createGraphics(edgeToEdge, edgeToEdge);
     var dx = now_PeooleX2, dy = now_PeooleY2, drotate = now_PeooleEESW2;
     var img = imgObject[parseInt(imgDic[people_init2["type"]])];
@@ -837,7 +831,7 @@ function updateCanvas() {
     var img = imgObject[parseInt(imgDic["start"])];
     image(img, dx, dy, edgeToEdge, edgeToEdge);
     image(pg, dx, dy, edgeToEdge, edgeToEdge);
-    
+
     var pg = createGraphics(edgeToEdge, edgeToEdge);
     var dx = now_PeooleX3, dy = now_PeooleY3, drotate = now_PeooleEESW3;
     var img = imgObject[parseInt(imgDic[people_init3["type"]])];
@@ -847,7 +841,7 @@ function updateCanvas() {
     var img = imgObject[parseInt(imgDic["start"])];
     image(img, dx, dy, edgeToEdge, edgeToEdge);
     image(pg, dx, dy, edgeToEdge, edgeToEdge);
-    
+
     var pg = createGraphics(edgeToEdge, edgeToEdge);
     var dx = now_PeooleX4, dy = now_PeooleY4, drotate = now_PeooleEESW4;
     var img = imgObject[parseInt(imgDic[people_init4["type"]])];
@@ -857,7 +851,7 @@ function updateCanvas() {
     var img = imgObject[parseInt(imgDic["start"])];
     image(img, dx, dy, edgeToEdge, edgeToEdge);
     image(pg, dx, dy, edgeToEdge, edgeToEdge);
-    
+
 
     stroke('red');
     strokeWeight(4);

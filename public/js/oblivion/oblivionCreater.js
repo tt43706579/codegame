@@ -1,4 +1,4 @@
-if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () {
+if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function() {
 
   // cache window 物件
   var win = window.top || window;
@@ -20,40 +20,41 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   return {
 
     // 設定一個 session 變數
-    set: function (name, value) {
+    set: function(name, value) {
       store[name] = value;
     },
 
     // 列出指定的 session 資料
-    get: function (name) {
+    get: function(name) {
       return (store[name] ? store[name] : undefined);
     },
 
     // 清除資料 ( session )
-    clear: function () { store = {}; },
+    clear: function() {
+      store = {};
+    },
 
     // 列出所有存入的資料
-    dump: function () { return JSON.stringify(store); }
+    dump: function() {
+      return JSON.stringify(store);
+    }
 
   };
 
 })();
-function back() {
-  var index = 0;
-  var href = window.location.href;
-  for (var i = 0; i < href.length; ++i) {
-    if (href[i] == '/' || href[i] == "\\") {
-      index = i;
-    }
-  }
-  href = href.substr(0, index + 1);
-  href += "oblivionUser";
-  window.location.replace(href);
-  // console.log(href);
+
+function back(){
+  window.history.back();
 }
 var href = window.location.href;
-var user, objectData, levelDivAlive = false, isOblivionCreaterOpen;
-var swordLevel = 0, shieldLevel = 0, levelUpLevel = 0, musicLevel = 1, bkMusicSwitch, bkMusicVolumn = 0.1, args, gameSpeed;
+var user, objectData, levelDivAlive = false,
+  isOblivionCreaterOpen;
+var swordLevel = 0,
+  shieldLevel = 0,
+  levelUpLevel = 0,
+  musicLevel = 1,
+  bkMusicSwitch, bkMusicVolumn = 0.1,
+  args, gameSpeed;
 var musicData;
 var scriptData = {
   type: "init"
@@ -61,17 +62,17 @@ var scriptData = {
 
 createLoadingMainView("centerLost");
 $.ajax({
-  url: href,              // 要傳送的頁面
-  method: 'POST',               // 使用 POST 方法傳送請求
-  dataType: 'json',             // 回傳資料會是 json 格式
-  data: scriptData,  // 將表單資料用打包起來送出去
+  url: href, // 要傳送的頁面
+  method: 'POST', // 使用 POST 方法傳送請求
+  dataType: 'json', // 回傳資料會是 json 格式
+  data: scriptData, // 將表單資料用打包起來送出去
   async: false,
-  success: function (res) {
+  success: function(res) {
     // console.log(res);
     user = res;
 
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
+    xmlhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         objectData = JSON.parse(this.responseText);
 
@@ -94,6 +95,7 @@ function error() {
   window.location.replace(href);
 
 }
+
 function initHome() {
   // console.log(document.getElementById("objectSelect"));
   if (Session.get("bkMusicVolumn") != null && Session.get("bkMusicSwitch") != null && Session.get("musicLevel") != null && Session.get("gameSpeed") != null) {
@@ -138,6 +140,7 @@ function initHome() {
     helper('centerLost');
   }
 }
+
 function logout() {
   // console.log("dddddd");
   var href = "/logout";
@@ -167,12 +170,12 @@ function helper(mainDiv) {
     try {
       parentObj = divTag.parentNode;
       parentObj.removeChild(divTag);
-    } catch (e) { }
+    } catch (e) {}
     divTag = document.getElementById("helperBkView");
     try {
       parentObj = divTag.parentNode;
       parentObj.removeChild(divTag);
-    } catch (e) { }
+    } catch (e) {}
     levelDivAlive = false;
     divTag = document.getElementById(mainDiv);
   }
@@ -247,12 +250,12 @@ function clossFunc(thisDiv, thisDiv2) {
   try {
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) { }
+  } catch (e) {}
   divTag = document.getElementById(thisDiv2);
   try {
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) { }
+  } catch (e) {}
   levelDivAlive = false;
 }
 
@@ -268,7 +271,9 @@ var dataTitle = ["帳&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbs
   "主&nbsp要&nbsp進&nbsp&nbsp度：",
   "成&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp就：",
   "上架地圖數：",
-  "已獲得星星數："];
+  "已獲得星星數："
+];
+
 function userData() {
   try {
     divTag = document.getElementById("userDataView");
@@ -277,7 +282,7 @@ function userData() {
     divTag = document.getElementById("userDataBkView");
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) { }
+  } catch (e) {}
   divID = "userDataView";
   divTag = document.getElementById("centerLost");
   b = document.createElement("div");
@@ -297,6 +302,7 @@ function userData() {
   divTag.appendChild(b);
   createUserView(divID);
 }
+
 function clossFunc(thisDiv, thisDiv2) {
   divTag = document.getElementById(thisDiv);
   parentObj = divTag.parentNode;
@@ -306,6 +312,7 @@ function clossFunc(thisDiv, thisDiv2) {
   parentObj.removeChild(divTag);
   levelDivAlive = false;
 }
+
 function createUserView(mainDiv) {
   divTag = document.getElementById(mainDiv);
   b = document.createElement("h1");
@@ -376,7 +383,8 @@ var lastObject = null;
 /*div分頁*/
 function clearLinkDot() {
   var i, a, main;
-  for (i = 0; (a = document.getElementsByTagName("a")[i]); i++) {
+  for (i = 0;
+    (a = document.getElementsByTagName("a")[i]); i++) {
     if (a.getAttribute("onFocus") == null) {
       a.setAttribute("onFocus", "this.blur();");
     } else {
@@ -385,6 +393,7 @@ function clearLinkDot() {
     a.setAttribute("hideFocus", "hidefocus");
   }
 }
+
 function loadTab(obj, n) {
   var layer;
   eval('layer=\'S' + n + '\'');
@@ -406,13 +415,11 @@ function loadTab(obj, n) {
     document.getElementById(layer).style.display = 'none';
     // console.log("aaa");
     lessRequirement(objectData.oblivionObject[13].requirementStar);
-  }
-  else if (n == 3 && user.starNum < objectData.oblivionObject[11].requirementStar) {
+  } else if (n == 3 && user.starNum < objectData.oblivionObject[11].requirementStar) {
     document.getElementById(layer).style.display = 'none';
     // console.log("bbb");
     lessRequirement(objectData.oblivionObject[11].requirementStar);
-  }
-  else {
+  } else {
     document.getElementById(layer).style.display = 'inline';
   }
 
@@ -464,9 +471,11 @@ function settingMap() {
     document.getElementById("settingMapDiv").style.display = '';
   }
 }
+
 function unSaveMap() {
   document.getElementById("settingMapDiv").style.display = 'none';
 }
+
 function saveMap() {
   document.getElementById("settingMapDiv").style.display = 'none';
 }
@@ -525,6 +534,7 @@ function lessRequirement(starNum) {
 }
 
 var levelDivAlive = false;
+
 function remindView(remindValue) {
   var isTwoLine = false;
   for (var i = 0; i < remindValue.length; i++) {
@@ -540,7 +550,7 @@ function remindView(remindValue) {
     divTag = document.getElementById("remindBkView");
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) { }
+  } catch (e) {}
   divTag = document.getElementById("centerLost");
   b = document.createElement("div");
   b.setAttribute("id", "remindBkView");
@@ -573,8 +583,7 @@ function remindView(remindValue) {
 }
 
 mainDescription = {
-  "oblivionObject": [
-    {
+  "oblivionObject": [{
       "level": 1,
       "mode": 1,
       "textarea1": "歡迎來到失落帝國！<br>在這裡你可以發揮你的無限想像力創造出獨一無二的地圖也可以遊玩其他使用者創建的地圖<br>每一個地圖都有遊玩條件，達成遊玩條件後即可遊玩地圖<br>完成地圖後可給予地圖評價，評價高的地圖會更加吸引人喔<br><br>點擊左下角的”自訂地圖”即可看到自己已創建的地圖以及開始創建屬於你的地圖<br><br>選定欲遊玩的地圖後點擊右下角的”進入地圖”即可開始遊玩。<br><br>未遊玩過的地圖為淡藍色<br>已遊玩過的地圖為淡紫色"
