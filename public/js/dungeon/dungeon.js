@@ -58,8 +58,8 @@ function initHome(){
                   socket.on("action", function(s, u) {
                       decodeOutput = s;
                       player = u;
-                      console.log("player :", player);
-                      console.log("decode :", decodeOutput);
+                      //console.log("player :", player);
+                      //console.log("decode :", decodeOutput);
                       codeOutputTranstionAction();
                   });
 

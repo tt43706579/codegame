@@ -1539,7 +1539,7 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
 function deleteGameRoom(){
   //alert("delete")
   href = href+"/delete"
-  console.log(href);
+  //console.log(href);
   $.ajax({
     url: href, // 要傳送的頁面
     method: 'POST', // 使用 POST 方法傳送請求

@@ -189,7 +189,7 @@ function init_setup() {
     }, //
     success: function(res) {
       data = JSON.parse(res);
-      console.log(data);
+      //console.log(data);
       Res_data = JSON.parse(res);
       if (data.presetCode) {
         var file = data.presetCode;
@@ -239,7 +239,7 @@ function init_setup() {
       success: function(res) {
         players = res;
         players.forEach((item, i) => {
-          console.log("player" + (i + 1) + ":" + item.userId);
+          //console.log("player" + (i + 1) + ":" + item.userId);
         });
       }
     })
@@ -501,11 +501,11 @@ function endgame() {
   var tc = counter - funname.length;
 
   if (gameEndingCode == 1) {
-    console.log("counter:", counter);
-    console.log("funname:", funname);
+    //console.log("counter:", counter);
+    //console.log("funname:", funname);
     // console.log("funname.length:", funname.length);
     // console.log("funcounter:", funcounter);
-    console.log("總動作為:", tc);
+    //console.log("總動作為:", tc);
 
     if (mapwinLinit["threeStar"][0] >= tc) {
       result = "拍手!恭喜你獲得三星! \n~來繼續挑戰下關吧~";
@@ -602,8 +602,8 @@ function draw() {
       now_PeooleEESW4 = old_PeooleEESW4;
       now_PeooleX4 = old_PeooleX4;
       now_PeooleY4 = old_PeooleY4;
-      //stepSpeed = 7; //控制車子速度
-      stepSpeed = gameSpeed; //控制車子速度
+      stepSpeed = 7; //控制車子速度
+      //stepSpeed = gameSpeed; //控制車子速度
       //stepSpeed = gameSpeed + 1 + Math.floor(ActionLen / 50); //控制車子速度
       delayResSpeed = 30 - (gameSpeed - 6) * 5;
       //delayResSpeed = 1;
@@ -655,7 +655,7 @@ function draw() {
                   p1_x = p1_x + nowValue.value[0];
                   p1_y = p1_y + nowValue.value[1];
                   p1_z = (p1_z + nowValue.value[2] + 4) % 4;
-                  console.log("P1 xyz: ", p1_x, p1_y, p1_z);
+                  //console.log("P1 xyz: ", p1_x, p1_y, p1_z);
                   // console.log("now:",old_PeooleX,old_PeooleY,old_PeooleEESW);
                 } else if (player == 2) {
                   old_PeooleX2 = old_PeooleX2 + nowValue.value[0] * edgeToWidth;
@@ -664,7 +664,7 @@ function draw() {
                   p2_x = p2_x + nowValue.value[0];
                   p2_y = p2_y + nowValue.value[1];
                   p2_z = (p2_z + nowValue.value[2] + 4) % 4;
-                  console.log("P2 xyz: ", p2_x, p2_y, p2_z);
+                  //console.log("P2 xyz: ", p2_x, p2_y, p2_z);
                 } else if (player == 3) {
                   old_PeooleX3 = old_PeooleX3 + nowValue.value[0] * edgeToWidth;
                   old_PeooleY3 = old_PeooleY3 + nowValue.value[1] * edgeToHeight;
@@ -672,7 +672,7 @@ function draw() {
                   p3_x = p3_x + nowValue.value[0];
                   p3_y = p3_y + nowValue.value[1];
                   p3_z = (p3_z + nowValue.value[2] + 4) % 4;
-                  console.log("P3 xyz: ", p3_x, p3_y, p3_z);
+                  //console.log("P3 xyz: ", p3_x, p3_y, p3_z);
                 } else if (player == 4) {
                   old_PeooleX4 = old_PeooleX4 + nowValue.value[0] * edgeToWidth;
                   old_PeooleY4 = old_PeooleY4 + nowValue.value[1] * edgeToHeight;
@@ -680,7 +680,7 @@ function draw() {
                   p4_x = p4_x + nowValue.value[0];
                   p4_y = p4_y + nowValue.value[1];
                   p4_z = (p4_z + nowValue.value[2] + 4) % 4;
-                  console.log("P4 xyz: ", p4_x, p4_y, p4_z);
+                  //console.log("P4 xyz: ", p4_x, p4_y, p4_z);
                 }
                 endgame();
               } else {
@@ -874,7 +874,7 @@ function draw() {
               if (mapObject[d].type == "unmoveble") {
                 mapObject.splice(d, 1);
                 d--;
-                console.log("del count");
+                //console.log("del count");
               }
             }
             updateObjectGraph();
@@ -1015,7 +1015,7 @@ function updateBackgroundGraph() {
         // backgroundGraph.fill('#bafba7');
         backgroundGraph.image(imgDungeon, x * edgeToWidth, y * edgeToHeight, edgeToWidth, edgeToHeight);
       } else {
-        console.log("mapValue err:", map[i]);
+        //console.log("mapValue err:", map[i]);
       }
     }
   }
@@ -1204,7 +1204,7 @@ function updateCanvas() {
       if (obj["type"] == "HPandArmor") {
         armor = obj["armor"];
         // console.log(dx, dy, )
-        console.log(" hp:", hp, " armor:", armor);
+        //console.log(" hp:", hp, " armor:", armor);
         // fill(0);
         // text(hp, dx+0.35*edgeToWidth, dy);
         // text(armor, dx+0.85*edgeToWidth, dy);
@@ -1283,7 +1283,7 @@ function updateCanvas() {
       if (obj["type"] == "HPandArmor") {
         armor = obj["armor"];
         // console.log(dx, dy, )
-        console.log(" hp:", hp, " armor:", armor);
+        //console.log(" hp:", hp, " armor:", armor);
         // fill(0);
         // text(hp, dx+0.35*edgeToWidth, dy);
         // text(armor, dx+0.85*edgeToWidth, dy);
@@ -1391,20 +1391,20 @@ function codeToCompiler(stringCode) {
     } else if (user._id == players[3].userId) {
       userNum = 4;
     }
-    console.log("userNum_init");
+    //console.log("userNum_init");
   }
   if (userNum == 1) { //user._id == players[0].userId
     var peopleStr = p1_x.toString() + " " + p1_y.toString() + " " + p1_z.toString();
-    console.log("P1:", peopleStr);
+    //console.log("P1:", peopleStr);
   } else if (userNum == 2) {
     var peopleStr = p2_x.toString() + " " + p2_y.toString() + " " + p2_z.toString();
-    console.log("P2:", peopleStr);
+    //console.log("P2:", peopleStr);
   } else if (userNum == 3) {
     var peopleStr = p3_x.toString() + " " + p3_y.toString() + " " + p3_z.toString();
-    console.log("P3:", peopleStr);
+    //console.log("P3:", peopleStr);
   } else if (userNum == 4) {
     var peopleStr = p4_x.toString() + " " + p4_y.toString() + " " + p4_z.toString();
-    console.log("P4:", peopleStr);
+    //console.log("P4:", peopleStr);
   }
 
 
@@ -1435,7 +1435,7 @@ function codeToCompiler(stringCode) {
       mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1] + " " + mapObject[i]['ans'];
       if (!initFlag) {
         triggerFlag = true;
-        console.log("triggerFlag to true");
+        //console.log("triggerFlag to true");
         if (mapObject[i]['ans'] == data.input1) {
           ip_x.push(mapObject[i]["postion"][0]);
           ip_y.push(mapObject[i]["postion"][1]);
@@ -1484,7 +1484,7 @@ function codeToCompiler(stringCode) {
     }
   }
 
-  console.log("Now ip_x: ", ip_x, ",ip_y: ", ip_y);
+  //console.log("Now ip_x: ", ip_x, ",ip_y: ", ip_y);
 
   // console.log("mpaobjStr 數量 [初始位置]:",mpaobjStr);
   var str = [mapStr, peopleStr, endlineStr, mpaobjStr].join('\n');
@@ -1505,7 +1505,7 @@ function codeToCompiler(stringCode) {
       inputStr = inputStr + data.input4;
     }
     inputFlag = false;
-    console.log("inputFlag to flase");
+    //console.log("inputFlag to flase");
   }
 
   // console.log("tempBefore:",tempBefore);
@@ -1593,7 +1593,7 @@ function codeOutputTranstionAction() {
       var conditionD = true;
       var loopCount = 0;
       while (conditionD) {
-        console.log(spaceT);
+        //console.log(spaceT);
         for (var di = 1; di < spaceT.length; di = di + 2) {
           var o = parseInt(spaceT[di]) - forgetDel;
           var o = parseInt(spaceT[di]) - forgetDel;
@@ -1780,7 +1780,7 @@ function codeOutputTranstionAction() {
             temp.push(spaceTranstion);
 
             loopNum--;
-            console.log("loopNum: ", loopNum);
+            //console.log("loopNum: ", loopNum);
             if (loopNum == 0) {
               for (let k = 0; k < mapObject.length; k++) {
                 if (mapObject[k].type == "loop_door") {
@@ -1846,12 +1846,12 @@ function codeOutputTranstionAction() {
     } else if (spaceT[0] == 'S') {
       if (player == userNum) {
         inputNum = parseInt(spaceT[1]);
-        console.log("inputNum: ", inputNum);
+        //console.log("inputNum: ", inputNum);
         inputFlag = true;
-        console.log("inputFlag to true");
+        //console.log("inputFlag to true");
       }
     } else {
-      console.log("error Type: ", spaceT);
+      //console.log("error Type: ", spaceT);
     }
 
 
@@ -1865,7 +1865,7 @@ function codeOutputTranstionAction() {
     gameEndingCode = 0;
     action_now = 0;
     //endgame();
-    console.log("指令動作:", action_code);
+    //console.log("指令動作:", action_code);
   } else {
     action_code = [];
     gameEndingCode = 0;
@@ -1892,7 +1892,7 @@ function call_JDOODLE_api(scriptData, inputData) {
 
 function decode_JDOODLE_api(str) {
   // console.log(str);
-  console.log("gameRoomId: ", gameRoomId);
+  //console.log("gameRoomId: ", gameRoomId);
   /*var userNum;
   if (user._id == players[0].userId) {
     userNum = 1;
@@ -1903,7 +1903,7 @@ function decode_JDOODLE_api(str) {
   } else if (user._id == players[3].userId) {
     userNum = 4;
   }*/
-  console.log("userNum", userNum);
+  //console.log("userNum", userNum);
   socket.emit("move", gameRoomId, str, userNum);
   //decodeOutput = str;
   //codeOutputTranstionAction();

@@ -24,7 +24,7 @@ var app = {
       socket.emit('join', roomId);
 
       socket.on('updateUsersList', function(users, i) {
-        console.log(users, i);
+       // console.log(users, i);
         updateUsersList(users, i);
       });
 

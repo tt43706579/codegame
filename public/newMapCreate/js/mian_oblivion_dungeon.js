@@ -29,7 +29,7 @@ var lockAnswerTextarea = document.getElementById('lockAnswerTextarea');
 var boxTextarea = document.getElementById('boxTextarea');
 var enemyBlodTextarea = document.getElementById('enemyBlodTextarea');
 var enemyAttackTextarea = document.getElementById('enemyAttackTextarea');
-var codingTextarea = document.getElementById('codingTextarea');
+
 
 var levelNameTextarea = document.getElementById('levelNameTextarea');
 var levelIntroductionTextarea = document.getElementById('levelIntroductionTextarea');
@@ -97,7 +97,7 @@ function loadObjectValue() {
 var saveBtn = document.getElementById('saveBtn');
 saveBtn.onclick = function () {
     // console.log(changeFile);
-    if (mapID) {
+    /*if (mapID) {
         if (changeFile) {
             var scriptData = precessSaveData();
             // console.log("scriptData:", scriptData);
@@ -144,12 +144,13 @@ saveBtn.onclick = function () {
             // alert("")
             remindView("關卡名稱重複");
         }
-    }
+    }*/
 }
 var finishBtn = document.getElementById('finishBtn');
 finishBtn.onclick = function () {
+    location.href='oblivionSelect';
     // console.log(changeFile);
-    if (mapID) {
+    /*if (mapID) {
         if (changeFile) {
             var scriptData = precessSaveData();
 
@@ -202,10 +203,10 @@ finishBtn.onclick = function () {
             // alert("")
             remindView("關卡名稱重複");
         }
-    }
+    }*/
 }
 
-var saveBtn = document.getElementById('saveBtn');
+/*var saveBtn = document.getElementById('saveBtn');
 saveBtn.onclick = function () {
     // console.log(changeFile);
     if (mapID) {
@@ -256,7 +257,7 @@ saveBtn.onclick = function () {
             remindView("關卡名稱重複");
         }
     }
-}
+}*/
 function precessSaveData() {
     for (let indexS = 0; indexS < mapObject.length - 1; indexS++) {
         var ma = mapObject[indexS];
@@ -265,25 +266,16 @@ function precessSaveData() {
             mapObject.splice(indexS + 1, 1);
         }
     }
-    var foggy = document.getElementById('openFoggy').checked;
+    
 
     heightestLevelStar = 0;
 
     if (parseInt(changeSize[selsize.selectedIndex].toString()) > 6 && heightestLevelStar < 81) {
         heightestLevelStar = 81;
     }
-    codingTextareaElement = document.getElementById('codingTextarea');
-    if (codingTextareaElement.value.length > 0 && heightestLevelStar < 120) {
-        heightestLevelStar = 120;
-    }
+    
 
-    if (foggy) {
-        data.foggy = true;
-        heightestLevelStar = 120;
-    }
-    else {
-        data.foggy = false;
-    }
+    
     var qMarkL = [];
     var qStoneL = [];
     for (let index = 0; index < mapObject.length; index++) {
@@ -563,15 +555,8 @@ function init_setup() {
                     levelDescriptionTextarea.value = res.mapDescription;
                     levelNameTextarea.value = res.mapName;
                     heightestLevelStar = res.requireStar;
-                    if (data.extendCode) {
-                        codingTextarea.value = data.extendCode;
-                    }
-                    if (data.foggy) {
-                        var foggy = document.getElementById('openFoggy');
-                        foggy.checked = true;
-                        var foggy = document.getElementById('closeFoggy');
-                        foggy.checked = false;
-                    }
+                   
+                    
 
                 }
             }
@@ -608,9 +593,7 @@ function init_setup() {
 function loadData() {
     // console.log(data);
     let mapNumber = data;
-    if (data.extendCode) {
-        codingTextarea.value = data.extendCode;
-    }
+    
     map = mapNumber['mapValue'];
     mapSize = Math.sqrt(mapNumber['mapSize']);
     people_init = mapNumber['people_init'];
