@@ -434,5 +434,6 @@ ul {
   font-size:30px;　
 }
 .map-name{
+  line-height: 20px;
   margin-left: 50px;
 }

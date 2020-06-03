@@ -38,7 +38,7 @@ function initHome() {
 
 
 // -------------------------------------------------
-var CurrentMap="map1";//預設為第一張地圖
+var CurrentMap = "map1"; //預設為第一張地圖
 var app = {
   rooms: function() {
     var socket = io('/lobby'
@@ -73,7 +73,7 @@ var app = {
           var inputEle = $("#roomnNameInput");
           var roomTitle = inputEle.val().trim();
           if (roomTitle !== '') {
-            socket.emit('createRoom', roomTitle,CurrentMap);
+            socket.emit('createRoom', roomTitle, CurrentMap);
             inputEle.val('');
           }
         })
@@ -238,7 +238,12 @@ function createRoomView() {
           </div>
           <div id="changeRoomBtn">創建</div>
           <img class="map-picture" src="/img/地圖照片/map1.png">
-          <div id="mapText">地圖簡介</div>
+          <div id="mapText">地圖簡介
+          <div id="mapText_map">
+          ${map1_text}
+          </div>
+
+          </div>
           `
   $("#roomView").append(html);
 
@@ -248,6 +253,15 @@ function createRoomView() {
     var mapName = $(this).val();
     CurrentMap = mapName;
     $('.map-picture').attr('src', `/img/地圖照片/${mapName}.png`)
+    if (mapName == "map1") {
+      $('#mapText_map').html(map1_text)
+    } else if (mapName == "map2") {
+      $('#mapText_map').html(map2_text)
+    } else if (mapName == "map3") {
+      $('#mapText_map').html(map3_text)
+    } else if (mapName == "map4") {
+      $('#mapText_map').html(map4_text)
+    }
   })
 
   $("#closeDiv").click(function() {
@@ -275,7 +289,12 @@ function addMessage(message) {
   }, 1000);
 
 }
+
 function logout() {
   var href = "/logout";
   window.location.replace(href);
 }
+map1_text = "嗨囉各位玩家，歡迎來到第一關。本關目標：<br>利用輸出函式來回答每一個門的正確答案<br>本關學習項目：printf(.)話說是不是每一個房間裡面的雕像數量都不一樣呢"
+map2_text = "哇~終點周圍都是火焰過不去怎麼辦?本關目標：利用輸入函式來向符文台取得正確的觸發器號碼<br>，本關學習項目：scanf(.)、lf-else、for-loop有4個符文台跟一排的<br>觸發器，難道一次要觸發一個以上才可以讓火滅掉嗎?"
+map3_text = "新的門出現了，似乎讓四周的燭台熄滅就可以開啟了<br>本關目標：練習使用迴圈得出特定的答案<br>本關學習項目：for-loop、printf(.)<br>總共有4道題目：<br>左上：費氏數列的F(8)~F(11)，其中F(0)=0、F(1)=1<br>左下：由小到大排列210的質因數分解<br>右上：回答大於200的前4個質數<br>右下：大於等於100、小於1000的所有阿姆斯壯數"
+map4_text = "寶箱，是寶箱，正解就在寶箱裡面！<br>本關目標：利用指標變數取的存在寶箱裡面的資訊吧<br>本關學習項目：數字排序<br>又是火焰，該不會把觸發器密碼藏在寶箱裡面吧?每一隻手手都會給你4個整數，寶箱的正確密碼好像是由這4個整數組成，究竟是由大到小還是由小到大呢?<br>指令提示：<br>int A[4];<br>char* p;<br>getArray(A);<br>p = openBos(A);"
