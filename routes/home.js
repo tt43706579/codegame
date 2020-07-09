@@ -1459,14 +1459,16 @@ router.post('/managementRFMP', function (req, res, next) {
             })
         }else if(type == "Calculate"){
             console.log("Calculate   22222222222222222222222");
-            var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型]
-                                                  // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
+            var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型,R%,F%,M%,P%]
+                                                  // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ,14,15,16,17]
             var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有記錄的人的記錄丟進去 // 2020.05.17
-            var Rscore = [],Fscore = [],Mscore = [],Pscore = [];    // 只將有記錄的人的評分丟進去 // 2020.05.17
-            var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
-            var Rave = 0,Fave = 0,Mave = 0,Pave = 0;
+            var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];   // 紀錄每個指標的5分位位置
+            var Rave = 0,Fave = 0,Mave = 0,Pave = 0;    // 紀錄每個指標的平均
             var Rday = endTime;
             var RFtaskStack = [];
+            var GWO = []; // 灰狼演算法陣列裡存 [random R%,random F%,random M%,random P%]
+                                           // [     0   ,    1    ,     2   ,     3    ]
+
             RFtaskStack.push(
                 new Promise((resolve, reject) => {
                     User.getAllUser(function (err, userState){
@@ -1522,7 +1524,7 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             }
                         }
-                        
+                        // 結束R數據排序
                         
                         // R數據的五分位數計算
                         for(let i = 0; i < RQ.length; i++){
@@ -1559,49 +1561,64 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             }
                         }
-                        console.log("RQ:",RQ);
                         // 結束 R數據的五分位數計算
         
                         // 玩家R評分計算
                         for(let index = 0; index < UserRFMP.length; index++){
                             if(UserRFMP[index][1] >= RQ[3]){  // 如果大於等於RQ4，得5分
                                 UserRFMP[index][5] = 5;
-                                Rscore.push(5);
                             }else if((UserRFMP[index][1] < RQ[3]) && (UserRFMP[index][1] >= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
                                 UserRFMP[index][5] = 4;
-                                Rscore.push(4);
                             }else if((UserRFMP[index][1] < RQ[2]) && (UserRFMP[index][1] >= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
                                 UserRFMP[index][5] = 3;
-                                Rscore.push(3);
                             }else if((UserRFMP[index][1] < RQ[1]) && (UserRFMP[index][1] >= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
                                 UserRFMP[index][5] = 2;
-                                Rscore.push(2);
                             }else if((UserRFMP[index][1] < RQ[0]) && (UserRFMP[index][1] != -1)){  // 如果小於等於RQ1，得1分
                                 UserRFMP[index][5] = 1;
-                                Rscore.push(1);
                             }
                             if(UserRFMP[index][1] == -1){
                                 UserRFMP[index][5] = -1;
                                 // 因不在選取區間內，所以不記錄進Rscore裡
                             }
                         } // 結束 玩家R評分計算
-        
-                        for(let i=0;i < Rscore.length; i++){
-                            Rave = Rave + Rscore[i];
+
+                        // R評分由大排到小  2020.07.09
+                        Rtime = userlen;
+                        while(Rtime > 1){
+                            Rtime--;
+                            for(let i=0; i < userlen-1;i++){
+                                var temp;
+                                if( UserRFMP[i][5] < UserRFMP[i+1][5] ){
+                                    temp = UserRFMP[i];
+                                    UserRFMP[i] = UserRFMP[i+1];
+                                    UserRFMP[i+1] = temp;
+                                }
+                            }
                         }
-                        // console.log("R評分總分數:",Rave);
-                        Rave = Rave / Rscore.length;
-        
-                        // 更新使用者Rscore
+
+                        // 玩家 R值的百分比計算 (%) ，Rscore 只記錄有遊玩記錄的人   2020.07.09
+                        for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
+                            if(UserRFMP[i][5] != -1){   // 只計算有遊玩資料的玩家
+                                var Rpercent = (Rhavedata.length-(i+1))/Rhavedata.length*100;
+                                UserRFMP[i][14] = Math.round(Rpercent*10000)/10000;  // UserRFMP[i][14] 存 R%
+                                // console.log("[",i,"][5] = ",UserRFMP[i][5]);
+                                // console.log(i,":R的百分比為: ",UserRFMP[i][14]);
+                            }else{
+                                // console.log("[",i,"][5] = ",UserRFMP[i][5]);
+                                // console.log(i,":R的百分比為: 沒有遊玩");
+                                UserRFMP[i][14] = -1;  // UserRFMP[i][14] 存 R%
+                            }
+                        }
+                        // 結束玩家 R值的百分比計算 (%)  2020.07.09
+
+
+                        // 更新使用者Rscore  紀錄R%
                         for(let i=0;i < UserRFMP.length; i++){
                             //非同步
-                            User.updateRscore(UserRFMP[i][0], UserRFMP[i][5] ,function (err, record) {
+                            User.updateRscore(UserRFMP[i][0], UserRFMP[i][14] ,function (err, record) {
                                 if (err) throw err;
                             })
                         }
-                        console.log("R評分平均:",Rave);
-                        // console.log("R有資料:",Rhavedata.length);
-                        // console.log("R評分長度:",Rscore.length);
                         
                         
                         // F數據由大排到小
@@ -1660,19 +1677,14 @@ router.post('/managementRFMP', function (req, res, next) {
                         for(let index = 0; index < UserRFMP.length; index++){
                             if(UserRFMP[index][2] >= FQ[3]){  // 如果大於等於FQ4，得5分
                                 UserRFMP[index][6] = 5;
-                                Fscore.push(5);
                             }else if((UserRFMP[index][2] < FQ[3]) && (UserRFMP[index][2] >= FQ[2])){  // 如果小於FQ4，且大於等於FQ3，得4分
                                 UserRFMP[index][6] = 4;
-                                Fscore.push(4);
                             }else if((UserRFMP[index][2] < FQ[2]) && (UserRFMP[index][2] >= FQ[1])){  // 如果小於FQ3，且大於等於FQ2，得3分
                                 UserRFMP[index][6] = 3;
-                                Fscore.push(3);
                             }else if((UserRFMP[index][2] < FQ[1]) && (UserRFMP[index][2] >= FQ[0])){  // 如果小於FQ2，且大於等於FQ1，得2分
                                 UserRFMP[index][6] = 2;
-                                Fscore.push(2);
                             }else if((UserRFMP[index][2] < FQ[0]) && (UserRFMP[index][2] != -1)){  // 如果小於等於FQ1，得1分
                                 UserRFMP[index][6] = 1;
-                                Fscore.push(1);
                             }
                             if(UserRFMP[index][2] == -1){
                                 UserRFMP[index][6] = -1;
@@ -1680,22 +1692,41 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         } // 結束 玩家F評分計算
         
-                        for(let i=0;i < Fscore.length; i++){
-                            Fave = Fave + Fscore[i];
+                        // F評分由大排到小  2020.07.09
+                        Ftime = userlen;
+                        while(Ftime > 1){
+                            Ftime--;
+                            for(let i=0; i < userlen-1;i++){
+                                var temp;
+                                if( UserRFMP[i][6] < UserRFMP[i+1][6] ){
+                                    temp = UserRFMP[i];
+                                    UserRFMP[i] = UserRFMP[i+1];
+                                    UserRFMP[i+1] = temp;
+                                }
+                            }
                         }
-                        // console.log("F評分總分數:",Fave);
-                        Fave = Fave / Fscore.length;
+
+                        // 玩家 F值的百分比計算 (%) ，Fscore 只記錄有遊玩記錄的人   2020.07.09
+                        for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
+                            if(UserRFMP[i][6] != -1){   // 只計算有遊玩資料的玩家
+                                var Fpercent = (Fhavedata.length-(i+1))/Fhavedata.length*100;
+                                UserRFMP[i][15] = Math.round(Fpercent*10000)/10000;  // UserRFMP[i][15] 存 F%
+                                // console.log("[",i,"][6] = ",UserRFMP[i][6]);
+                                // console.log(i,":F的百分比為: ",UserRFMP[i][15]);
+                            }else{
+                                // console.log("[",i,"][6] = ",UserRFMP[i][6]);
+                                // console.log(i,":F的百分比為: 沒有遊玩");
+                                UserRFMP[i][15] = -1;  // UserRFMP[i][15] 存 F%
+                            }
+                        }
+                        // 結束玩家 F值的百分比計算 (%)  2020.07.09
         
-                        // 更新使用者Fscore
+                        // 更新使用者Fscore  紀錄F%
                         for(let i=0;i < UserRFMP.length; i++){
-                            User.updateFscore(UserRFMP[i][0], UserRFMP[i][6] ,function (err, record) {
+                            User.updateFscore(UserRFMP[i][0], UserRFMP[i][15] ,function (err, record) {
                                 if (err) throw err;
                             })
-                        }
-                        console.log("F評分平均:",Fave);
-                        // console.log("F有資料:",Fhavedata.length);
-                        // console.log("F評分長度:",Fscore.length);
-                        
+                        }                        
                         
                          // 以下做 M & P的計算
                         UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
@@ -1781,27 +1812,19 @@ router.post('/managementRFMP', function (req, res, next) {
                                         MQ[i] = Mhavedata[Math.floor(position)]; //整數無條件進位
                                     }
                                 }
-                            }
-                            // console.log("MQ:",MQ);
-                            // 結束 M數據的五分位數計算
-                    
+                            }                    
                             // 玩家M評分計算
                             for(let index = 0; index < UserRFMP.length; index++){
                                 if(UserRFMP[index][3] >= MQ[3]){  // 如果大於等於MQ4，得5分
                                     UserRFMP[index][7] = 5;
-                                    Mscore.push(5);
                                 }else if((UserRFMP[index][3] < MQ[3]) && (UserRFMP[index][3] >= MQ[2])){  // 如果小於MQ4，且大於等於MQ3，得4分
                                     UserRFMP[index][7] = 4;
-                                    Mscore.push(4);
                                 }else if((UserRFMP[index][3] < MQ[2]) && (UserRFMP[index][3] >= MQ[1])){  // 如果小於MQ3，且大於等於MQ2，得3分
                                     UserRFMP[index][7] = 3;
-                                    Mscore.push(3);
                                 }else if((UserRFMP[index][3] < MQ[1]) && (UserRFMP[index][3] >= MQ[0])){  // 如果小於MQ2，且大於等於MQ1，得2分
                                     UserRFMP[index][7] = 2;
-                                    Mscore.push(2);
                                 }else if((UserRFMP[index][3] < MQ[0]) && (UserRFMP[index][3] != -1)){  // 如果小於等於MQ1，得1分
                                     UserRFMP[index][7] = 1;
-                                    Mscore.push(1);
                                 }
                                 if(UserRFMP[index][3] == -1){
                                     UserRFMP[index][7] = -1;
@@ -1809,22 +1832,42 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             } // 結束 玩家M評分計算
                     
-                            for(let i=0;i < Mscore.length; i++){
-                                Mave = Mave + Mscore[i];
+                            // M評分由大排到小  2020.07.09
+                            Mtime = userlen;
+                            while(Mtime > 1){
+                                Mtime--;
+                                for(let i=0; i < userlen-1;i++){
+                                    var temp;
+                                    if( UserRFMP[i][7] < UserRFMP[i+1][7] ){
+                                        temp = UserRFMP[i];
+                                        UserRFMP[i] = UserRFMP[i+1];
+                                        UserRFMP[i+1] = temp;
+                                    }
+                                }
                             }
-                            // console.log("M評分總分數:",Mave);
-                            Mave = Mave / Mscore.length;
-                    
-                            // 更新使用者Mscore
+
+                            // 玩家 M值的百分比計算 (%) ，Mscore 只記錄有遊玩記錄的人   2020.07.09
+                            for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
+                                if(UserRFMP[i][7] != -1){   // 只計算有遊玩資料的玩家
+                                    var Mpercent = (Mhavedata.length-(i+1))/Mhavedata.length*100;
+                                    UserRFMP[i][16] = Math.round(Mpercent*10000)/10000;  // UserRFMP[i][16] 存 M%
+                                    // console.log("[",i,"][7] = ",UserRFMP[i][7]);
+                                    // console.log(i,":M的百分比為: ",UserRFMP[i][16]);
+                                }else{
+                                    // console.log("[",i,"][7] = ",UserRFMP[i][7]);
+                                    // console.log(i,":M的百分比為: 沒有遊玩");
+                                    UserRFMP[i][16] = -1;  // UserRFMP[i][16] 存 M%
+                                }
+                            }
+                            // 結束玩家 M值的百分比計算 (%)  2020.07.09
+            
+                            // 更新使用者Mscore  紀錄M%
                             for(let i=0;i < UserRFMP.length; i++){
                                 //非同步
-                                User.updateMscore(UserRFMP[i][0], UserRFMP[i][7] ,function (err, record) {
+                                User.updateMscore(UserRFMP[i][0], UserRFMP[i][16] ,function (err, record) {
                                     if (err) throw err;
                                 })
                             }
-                            console.log("M評分平均:",Mave);
-                            // console.log("M有資料:",Mhavedata.length);
-                            // console.log("M評分長度:",Mscore.length);
                             
                             // P數據由大排到小
                             let Ptime = Phavedata.length;
@@ -1875,25 +1918,19 @@ router.post('/managementRFMP', function (req, res, next) {
                                     }
                                 }
                             }
-                            // console.log("PQ:",PQ);
-                            // 結束 P數據的五分位數計算
+                            
                             // 玩家P評分計算
                             for(let index = 0; index < UserRFMP.length; index++){
                                 if(UserRFMP[index][4] >= PQ[3]){  // 如果大於等於PQ4，得5分
                                     UserRFMP[index][8] = 5;
-                                    Pscore.push(5);
                                 }else if((UserRFMP[index][4] < PQ[3]) && (UserRFMP[index][4] >= PQ[2])){  // 如果小於PQ4，且大於等於PQ3，得4分
                                     UserRFMP[index][8] = 4;
-                                    Pscore.push(4);
                                 }else if((UserRFMP[index][4] < PQ[2]) && (UserRFMP[index][4] >= PQ[1])){  // 如果小於PQ3，且大於等於PQ2，得3分
                                     UserRFMP[index][8] = 3;
-                                    Pscore.push(3);
                                 }else if((UserRFMP[index][4] < PQ[1]) && (UserRFMP[index][4] >= PQ[0])){  // 如果小於PQ2，且大於等於PQ1，得2分
                                     UserRFMP[index][8] = 2;
-                                    Pscore.push(2);
                                 }else if((UserRFMP[index][4] < PQ[0]) && (UserRFMP[index][4] != -1)){  // 如果小於等於PQ1，得1分
                                     UserRFMP[index][8] = 1;
-                                    Pscore.push(1);
                                 }
                                 if(UserRFMP[index][4] == -1){
                                     UserRFMP[index][8] = -1;
@@ -1901,23 +1938,46 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             } // 結束 玩家P評分計算
                     
-                            for(let i=0;i < Pscore.length; i++){
-                                Pave = Pave + Pscore[i];
+                            // M評分由大排到小  2020.07.09
+                            Ptime = userlen;
+                            while(Ptime > 1){
+                                Ptime--;
+                                for(let i=0; i < userlen-1;i++){
+                                    var temp;
+                                    if( UserRFMP[i][8] < UserRFMP[i+1][8] ){
+                                        temp = UserRFMP[i];
+                                        UserRFMP[i] = UserRFMP[i+1];
+                                        UserRFMP[i+1] = temp;
+                                    }
+                                }
                             }
-                            // console.log("P評分總分數:",Pave);
-                            Pave = Pave / Pscore.length;
-                    
-                            // 更新使用者Pscore
+
+                            // 玩家 P值的百分比計算 (%) ，Pscore 只記錄有遊玩記錄的人   2020.07.09
+                            for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
+                                if(UserRFMP[i][8] != -1){   // 只計算有遊玩資料的玩家
+                                    var Ppercent = (Phavedata.length-(i+1))/Phavedata.length*100;
+                                    UserRFMP[i][17] = Math.round(Ppercent*10000)/10000;  // UserRFMP[i][17] 存 P%
+                                    console.log("[",i,"][8] = ",UserRFMP[i][8]);
+                                    console.log(i,":P的百分比為: ",UserRFMP[i][17]);
+                                }else{
+                                    console.log("[",i,"][8] = ",UserRFMP[i][8]);
+                                    console.log(i,":P的百分比為: 沒有遊玩");
+                                    UserRFMP[i][17] = -1;  // UserRFMP[i][17] 存 P%
+                                }
+                            }
+                            // 結束玩家 P值的百分比計算 (%)  2020.07.09
+            
+                            // 更新使用者Pscore  紀錄P%
                             for(let i=0;i < UserRFMP.length; i++){
                                 //非同步
-                                User.updatePscore(UserRFMP[i][0], UserRFMP[i][8] ,function (err, record) {
+                                User.updatePscore(UserRFMP[i][0], UserRFMP[i][17] ,function (err, record) {
                                     if (err) throw err;
                                 })
                             }
-                            console.log("P評分平均:",Pave);
+                            //console.log("P評分平均:",Pave);
                             // console.log("P有資料:",Phavedata.length);
                             // console.log("P評分長度:",Pscore.length);
-
+                            
                             // 計算 RFMP值 以及 學習者類型判斷
                             for(let i=0;i < UserRFMP.length; i++){
                                 if(UserRFMP[i][5] > Rave){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][9] 存 R值
@@ -1930,7 +1990,7 @@ router.post('/managementRFMP', function (req, res, next) {
                                 if(UserRFMP[i][7] == -1){  UserRFMP[i][11] = -1;    }   // UserRFMP[index][11] 存 M值
                                 if(UserRFMP[i][8] == -1){  UserRFMP[i][12] = -1;    }   // UserRFMP[index][12] 存 P值
 
-                                /*
+                                
                                 if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
                                 else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
                                 else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 3
@@ -1948,18 +2008,9 @@ router.post('/managementRFMP', function (req, res, next) {
                                 else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
                                 else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
                                 else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "NaN";   } // 不在所選區間內
-                                // else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
-                                */
+                                else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
+                                
 
-                               if(UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "000型";   } // 1
-                               else if(UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "001型";   }
-                               else if(UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "010型";   }
-                               else if(UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "011型";   }
-                               else if(UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "100型";   }
-                               else if(UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "101型";   }
-                               else if(UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "110型";   }
-                               else if(UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "111型";   }
-                               else if(UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "NaN";   }
 
 
                                 // 更新使用者 學習者類型
