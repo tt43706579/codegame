@@ -20,6 +20,7 @@ var upload = multer({ dest: '../public/testImg' });
 var formidable = require('formidable');
 var jqupload = require('jquery-file-upload-middleware');
 var fs = require('fs');
+const { log } = require('console');
 
 router.post('/onloadImg', function (req, res, next) {
 
@@ -1431,6 +1432,8 @@ router.post('/managementUser', function (req, res, next) {
     }
 
 });
+
+
 // 以下宜靜 2020.05.18
 router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)
@@ -1442,6 +1445,18 @@ router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
     });
 });
 
+var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型,R%,F%,M%,P%]
+                                       // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ,14,15,16,17]
+var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有記錄的人的記錄丟進去 // 2020.05.17
+var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];   // 紀錄每個指標的5分位位置
+var Rave = 0,Fave = 0,Mave = 0,Pave = 0;    // 紀錄每個指標的平均
+var Rday;
+var RFtaskStack = [];
+var GWOSize = 12;
+var GWO = []; // 灰狼演算法陣列裡存 [random R%,random F%,random M%,random P%,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心]
+                                // [     0   ,    1    ,     2   ,    3    ,    4  ,    5    ,     6    ,    7    ,    8    ,     9    ]
+var BestGWO=[]; //紀錄最好的權重值
+
 router.post('/managementRFMP', function (req, res, next) {  
     try {
         var type = req.body.type;
@@ -1451,23 +1466,23 @@ router.post('/managementRFMP', function (req, res, next) {
         console.log("startTime:",startTime);
         console.log("endTime:",endTime);
         if (type == "init") {
-            console.log("11111111111111111111111");
+            console.log("-------------------------------   init   -------------------------------");
             var id = req.user.id;
             User.getUserById(id, function (err, user) {
                 if (err) throw err;
                 res.json(user);
             })
         }else if(type == "Calculate"){
-            console.log("Calculate   22222222222222222222222");
-            var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型,R%,F%,M%,P%]
-                                                  // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ,14,15,16,17]
-            var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有記錄的人的記錄丟進去 // 2020.05.17
-            var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];   // 紀錄每個指標的5分位位置
-            var Rave = 0,Fave = 0,Mave = 0,Pave = 0;    // 紀錄每個指標的平均
-            var Rday = endTime;
-            var RFtaskStack = [];
-            var GWO = []; // 灰狼演算法陣列裡存 [random R%,random F%,random M%,random P%]
-                                           // [     0   ,    1    ,     2   ,     3    ]
+            console.log("-------------------------------   Calculate   -------------------------------");
+            // var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型,R%,F%,M%,P%]
+            //                                       // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ,14,15,16,17]
+            // var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有記錄的人的記錄丟進去 // 2020.05.17
+            // var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];   // 紀錄每個指標的5分位位置
+            // var Rave = 0,Fave = 0,Mave = 0,Pave = 0;    // 紀錄每個指標的平均
+            Rday = endTime;
+            // var RFtaskStack = [];
+            // var GWO = []; // 灰狼演算法陣列裡存 [random R%,random F%,random M%,random P%]
+            //                                // [     0   ,    1    ,     2   ,     3    ]
 
             RFtaskStack.push(
                 new Promise((resolve, reject) => {
@@ -1526,6 +1541,9 @@ router.post('/managementRFMP', function (req, res, next) {
                         }
                         // 結束R數據排序
                         
+                        
+                        
+
                         // R數據的五分位數計算
                         for(let i = 0; i < RQ.length; i++){
                             if(i==3){   //取 80%  為 Q4
@@ -1596,11 +1614,12 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         }
 
+
                         // 玩家 R值的百分比計算 (%) ，Rscore 只記錄有遊玩記錄的人   2020.07.09
                         for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
                             if(UserRFMP[i][5] != -1){   // 只計算有遊玩資料的玩家
                                 var Rpercent = (Rhavedata.length-(i+1))/Rhavedata.length*100;
-                                UserRFMP[i][14] = Math.round(Rpercent*10000)/10000;  // UserRFMP[i][14] 存 R%
+                                UserRFMP[i][14] = Math.round(Rpercent*100)/100;  // UserRFMP[i][14] 存 R%
                                 // console.log("[",i,"][5] = ",UserRFMP[i][5]);
                                 // console.log(i,":R的百分比為: ",UserRFMP[i][14]);
                             }else{
@@ -1710,7 +1729,7 @@ router.post('/managementRFMP', function (req, res, next) {
                         for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
                             if(UserRFMP[i][6] != -1){   // 只計算有遊玩資料的玩家
                                 var Fpercent = (Fhavedata.length-(i+1))/Fhavedata.length*100;
-                                UserRFMP[i][15] = Math.round(Fpercent*10000)/10000;  // UserRFMP[i][15] 存 F%
+                                UserRFMP[i][15] = Math.round(Fpercent*100)/100;  // UserRFMP[i][15] 存 F%
                                 // console.log("[",i,"][6] = ",UserRFMP[i][6]);
                                 // console.log(i,":F的百分比為: ",UserRFMP[i][15]);
                             }else{
@@ -1850,7 +1869,7 @@ router.post('/managementRFMP', function (req, res, next) {
                             for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
                                 if(UserRFMP[i][7] != -1){   // 只計算有遊玩資料的玩家
                                     var Mpercent = (Mhavedata.length-(i+1))/Mhavedata.length*100;
-                                    UserRFMP[i][16] = Math.round(Mpercent*10000)/10000;  // UserRFMP[i][16] 存 M%
+                                    UserRFMP[i][16] = Math.round(Mpercent*100)/100;  // UserRFMP[i][16] 存 M%
                                     // console.log("[",i,"][7] = ",UserRFMP[i][7]);
                                     // console.log(i,":M的百分比為: ",UserRFMP[i][16]);
                                 }else{
@@ -1956,12 +1975,12 @@ router.post('/managementRFMP', function (req, res, next) {
                             for(let i = 0;i < userlen; i++){ //要掃描資料庫裡所有玩家
                                 if(UserRFMP[i][8] != -1){   // 只計算有遊玩資料的玩家
                                     var Ppercent = (Phavedata.length-(i+1))/Phavedata.length*100;
-                                    UserRFMP[i][17] = Math.round(Ppercent*10000)/10000;  // UserRFMP[i][17] 存 P%
-                                    console.log("[",i,"][8] = ",UserRFMP[i][8]);
-                                    console.log(i,":P的百分比為: ",UserRFMP[i][17]);
+                                    UserRFMP[i][17] = Math.round(Ppercent*100)/100;  // UserRFMP[i][17] 存 P%
+                                    // console.log("[",i,"][8] = ",UserRFMP[i][8]);
+                                    // console.log(i,":P的百分比為: ",UserRFMP[i][17]);
                                 }else{
-                                    console.log("[",i,"][8] = ",UserRFMP[i][8]);
-                                    console.log(i,":P的百分比為: 沒有遊玩");
+                                    // console.log("[",i,"][8] = ",UserRFMP[i][8]);
+                                    // console.log(i,":P的百分比為: 沒有遊玩");
                                     UserRFMP[i][17] = -1;  // UserRFMP[i][17] 存 P%
                                 }
                             }
@@ -1974,53 +1993,29 @@ router.post('/managementRFMP', function (req, res, next) {
                                     if (err) throw err;
                                 })
                             }
-                            //console.log("P評分平均:",Pave);
-                            // console.log("P有資料:",Phavedata.length);
-                            // console.log("P評分長度:",Pscore.length);
+
+                            /*   start GWO algorithm   */ 
+                            /*     開始    灰狼演算法   */ 
+                            // 隨機產生 GWOSize 組4維初始解
+                            for(let i = 0 ; i < GWOSize ; i++){
+                                // 產生0~1的亂數 且設成百分比
+                                // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
+                                GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+                            }
+
                             
-                            // 計算 RFMP值 以及 學習者類型判斷
+                            
+                            // 計算適存值 fitness
+                            console.log("-------------------------------現在在 主程式-------------------------------");
+                            GwoLevy();
+                            console.log("-------------------------------回到 主程式-------------------------------");
+                            
                             for(let i=0;i < UserRFMP.length; i++){
-                                if(UserRFMP[i][5] > Rave){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][9] 存 R值
-                                if(UserRFMP[i][6] > Fave){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][10] 存 F值
-                                if(UserRFMP[i][7] > Mave){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][11] 存 M值
-                                if(UserRFMP[i][8] > Pave){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][12] 存 P值
-
-                                if(UserRFMP[i][5] == -1){  UserRFMP[i][9] = -1;     }   // UserRFMP[index][9] 存 R值
-                                if(UserRFMP[i][6] == -1){  UserRFMP[i][10] = -1;    }   // UserRFMP[index][10] 存 F值
-                                if(UserRFMP[i][7] == -1){  UserRFMP[i][11] = -1;    }   // UserRFMP[index][11] 存 M值
-                                if(UserRFMP[i][8] == -1){  UserRFMP[i][12] = -1;    }   // UserRFMP[index][12] 存 P值
-
-                                
-                                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 3
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 4
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 5
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 6
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 7
-                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 8
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 9
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 10
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 11
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 12
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 13
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 14
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
-                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
-                                else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "NaN";   } // 不在所選區間內
-                                else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
-                                
-
-
-
-                                // 更新使用者 學習者類型
-                                //非同步
                                 User.updateLearnerType(UserRFMP[i][0], UserRFMP[i][13] ,function (err, record) {
                                     if (err) throw err;
                                     
-                                })
-                                
-                            } // 結束計算 RFMP值 以及 學習者類型判斷
+                                })   
+                            }
 
                             // for(let i=0;i < UserRFMP.length; i++){
                             //     console.log("UserRFMP[",i,"]:",UserRFMP[i]);
@@ -2042,7 +2037,7 @@ router.post('/managementRFMP', function (req, res, next) {
             
         }
         else if (type == "LoadUser") {
-            console.log("LoadUser  33333333333333333333333");
+            console.log("-------------------------------  LoadUser   -------------------------------");
             User.getUser(req.user.id, function (err, users) {
                 if (err) throw err;
                 res.json(users);
@@ -2053,6 +2048,344 @@ router.post('/managementRFMP', function (req, res, next) {
     }  
     
 });
+
+function GwoLevy() {
+    console.log("-------------------------------現在在 GwoLevy-------------------------------");
+    DunnIndex();
+    console.log("-------------------------------結束 Dunn Index-------------------------------");
+
+    // console.log("GwoLevy");
+
+    // console.log("GwoLevy裡");
+    // for(let i = 0 ; i < GWOSize ; i++){
+    //     console.log("GWO[",i,"] = ",GWO[i]);
+    // }
+
+    // DunnIndex();
+    // console.log("return: DunnIndex");
+    console.log("-------------------------------回到 GwoLevy-------------------------------");
+}
+
+var interdis = 0, intradis = 0; // 記錄群間距離，紀錄到群心距離
+var Mininterdis = 9999999; // 計算每群群心之間的距離取最小
+var Maxintradis = 0; // 計算每群內每一點到群心之間的距離取最大
+// 因為要達成 群間距離最大 & 群內距離最小 的分群條件，才算是最好的分群
+var Dunn = 0;   // 最終的適存值計算
+
+var Outstanding = [0,0,0,0];   // 傑出型
+var AchievementType = [0,0,0,0];   // 成就型
+var GeneralType = [0,0,0,0]; // 一般型
+var Supportive = [0,0,0,0]; // 扶持型
+var Caring = [0,0,0,0]; // 關懷型
+var Peoplenumber = [0,0,0,0,0]; // [傑出型,成就型,一般型,扶持型,關懷型]
+//  紀錄每群人數                    [   0  ,  1  ,   2  ,  3  ,   4  ]
+
+
+function DunnIndex() {
+    console.log("-------------------------------現在在 Dunn Index-------------------------------");
+
+    // 計算適存值
+    for(let j= 0; j < GWOSize ; j++){
+        // console.log("權重值:",GWO[j]);
+        // 計算 RFMP值 以及 學習者類型判斷
+        // console.log("-------------------------------新的計算-------------------------------");
+        // console.log("現在權重值:[",j,"]:",GWO[j]);
+
+        for(let i=0;i < UserRFMP.length; i++){
+            if(UserRFMP[i][14] >= GWO[j][0]){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][14] 存 R%，GWO[j][0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
+            else {  UserRFMP[i][9] = 0;     }
+            if(UserRFMP[i][15] >= GWO[j][1]){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][15] 存 F%，GWO[j][1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
+            else {  UserRFMP[i][10] = 0;    }
+            if(UserRFMP[i][16] >= GWO[j][2]){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][16] 存 M%，GWO[j][2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
+            else {  UserRFMP[i][11] = 0;    }
+            if(UserRFMP[i][17] >= GWO[j][3]){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][17] 存 P%，GWO[j][3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
+            else {  UserRFMP[i][12] = 0;    }
+
+            if(UserRFMP[i][5] == -1){  UserRFMP[i][9] = -1;     }   // UserRFMP[index][9] 存 R值
+            if(UserRFMP[i][6] == -1){  UserRFMP[i][10] = -1;    }   // UserRFMP[index][10] 存 F值
+            if(UserRFMP[i][7] == -1){  UserRFMP[i][11] = -1;    }   // UserRFMP[index][11] 存 M值
+            if(UserRFMP[i][8] == -1){  UserRFMP[i][12] = -1;    }   // UserRFMP[index][12] 存 P值
+
+            
+            if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 3
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 4
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 5
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 6
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 7
+            else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 8
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 9
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 10
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 11
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 12
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 13
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 14
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
+            else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
+            else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "不在區間";   } // 不在所選區間內
+            else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
+
+            // 檢查驗證的
+            // if(UserRFMP[i][0] == "C108110121@nkust.edu.tw"){
+            //     console.log(UserRFMP[i]);
+            // }
+        } // 結束計算 RFMP值 以及 學習者類型判斷
+
+        // DunnIdex開始計算fitness
+        // UserRFMP陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型,R%,F%,M%,P%]
+        //                             [   0   ,  1  ,  2  ,  3  , 4  ,  5  ,  6  , 7   ,  8  , 9 , 10,11, 12,    13   ,14,15,16,17]
+        // 灰狼演算法陣列裡存 [random R%,random F%,random M%,random P%,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,關懷型群心]
+        //                   [     0   ,    1    ,     2   ,    3    ,    4  ,    5    ,     6    ,    7    ,    8    ,     9    ]
+        interdis = 0;   // 記錄群間距離
+        intradis = 0;   // 紀錄到群心距離
+        Mininterdis = 9999999; // 計算每群群心之間的距離取最小
+        Maxintradis = 0; // 計算每群內每一點到群心之間的距離取最大
+        // 因為要達成 群間距離最大 & 群內距離最小 的分群條件，才算是最好的分群
+        Dunn = 0;   // 最終的適存值計算
+
+        Outstanding = [0,0,0,0];   // 傑出型
+        AchievementType = [0,0,0,0];   // 成就型
+        GeneralType = [0,0,0,0]; // 一般型
+        Supportive = [0,0,0,0]; // 扶持型
+        Caring = [0,0,0,0]; // 關懷型
+        Peoplenumber = [0,0,0,0,0]; // [傑出型,成就型,一般型,扶持型,關懷型]
+        //  紀錄每群人數                [   0  ,  1  ,   2  ,  3  ,   4  ]
+
+
+        // console.log("-------------------------------未計算前-------------------------------");
+        // console.log("現在在權重值:[",j,"]:");
+        // console.log("各群人數:",Peoplenumber);
+
+        // 計算每群的群心
+        for(let i = 0 ; i < UserRFMP.length ; i++){
+            if(UserRFMP[i][13] == "傑出型"){
+                Outstanding[0] = Outstanding[0] + UserRFMP[i][14]; // 加總 傑出型 學習者R%的百分比
+                Outstanding[1] = Outstanding[1] + UserRFMP[i][15]; // 加總 傑出型 學習者F%的百分比
+                Outstanding[2] = Outstanding[2] + UserRFMP[i][16]; // 加總 傑出型 學習者M%的百分比
+                Outstanding[3] = Outstanding[3] + UserRFMP[i][17]; // 加總 傑出型 學習者P%的百分比
+                Peoplenumber[0] = Peoplenumber[0]+1;    // 加總 傑出型 人數
+            }
+            else if(UserRFMP[i][13] == "成就型"){
+                AchievementType[0] = AchievementType[0] + UserRFMP[i][14]; // 加總 成就型 學習者R%的百分比
+                AchievementType[1] = AchievementType[1] + UserRFMP[i][15]; // 加總 成就型 學習者F%的百分比
+                AchievementType[2] = AchievementType[2] + UserRFMP[i][16]; // 加總 成就型 學習者M%的百分比
+                AchievementType[3] = AchievementType[3] + UserRFMP[i][17] // 加總 成就型 學習者P%的百分比
+                Peoplenumber[1] = Peoplenumber[1]+1;    // 加總 成就型 人數
+            }
+            else if(UserRFMP[i][13] == "一般型"){
+                GeneralType[0] = GeneralType[0] + UserRFMP[i][14]; // 加總 一般型 學習者R%的百分比
+                GeneralType[1] = GeneralType[1] + UserRFMP[i][15]; // 加總 一般型 學習者F%的百分比
+                GeneralType[2] = GeneralType[2] + UserRFMP[i][16]; // 加總 一般型 學習者M%的百分比
+                GeneralType[3] = GeneralType[3] + UserRFMP[i][17]; // 加總 一般型 學習者P%的百分比
+                Peoplenumber[2] = Peoplenumber[2]+1;    // 加總 一般型 人數
+            }
+            else if(UserRFMP[i][13] == "扶持型"){
+                Supportive[0] = Supportive[0] + UserRFMP[i][14]; // 加總 扶持型 學習者R%的百分比
+                Supportive[1] = Supportive[1] + UserRFMP[i][15]; // 加總 扶持型 學習者F%的百分比
+                Supportive[2] = Supportive[2] + UserRFMP[i][16]; // 加總 扶持型 學習者M%的百分比
+                Supportive[3] = Supportive[3] + UserRFMP[i][17]; // 加總 扶持型 學習者P%的百分比
+                Peoplenumber[3] = Peoplenumber[3]+1;    // 加總 扶持型 人數
+            }
+            else if(UserRFMP[i][13] == "關懷型"){
+                Caring[0] = Caring[0] + UserRFMP[i][14]; // 加總 關懷型 學習者R%的百分比
+                Caring[1] = Caring[1] + UserRFMP[i][15]; // 加總 關懷型 學習者F%的百分比
+                Caring[2] = Caring[2] + UserRFMP[i][16]; // 加總 關懷型 學習者M%的百分比
+                Caring[3] = Caring[3] + UserRFMP[i][17]; // 加總 關懷型 學習者P%的百分比
+                Peoplenumber[4] = Peoplenumber[4]+1;    // 加總 關懷型 人數
+            }
+        }
+
+        // 如果分群不是5群，此次權重值重新計算，使分群直到分為5群為止
+        if(Peoplenumber[0] == 0 || Peoplenumber[1] == 0 || Peoplenumber[2] == 0 || Peoplenumber[3] == 0 || Peoplenumber[4] == 0){
+            // console.log("-------------------------------重置前-------------------------------");
+            // console.log("現在在權重值:[",j,"]:");
+            // console.log("各群人數:",Peoplenumber);
+            // console.log("重置GWO[",j,"]");
+            GWO[j] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+            j = j-1;    // 因為要重新計算這次的適存值，所以j-1，因為continue會讓j+1
+            continue;
+        }
+
+        for(let i = 0 ; i < 4 ; i++){
+            // 傑出型
+            if(Peoplenumber[0] != 0){
+                Outstanding[i] = Outstanding[i] / Peoplenumber[0]; 
+                Outstanding[i] = Math.round(Outstanding[i]*100) / 100;
+            }
+            // 成就型
+            if(Peoplenumber[1] != 0){
+                AchievementType[i] = AchievementType[i] / Peoplenumber[1];
+                AchievementType[i] = Math.round(AchievementType[i]*100) / 100;
+            }
+            // 一般型
+            if(Peoplenumber[2] != 0){
+                GeneralType[i] = GeneralType[i] / Peoplenumber[2];
+                GeneralType[i] = Math.round(GeneralType[i]*100) / 100;
+            }
+            // 扶持型
+            if(Peoplenumber[3] != 0){
+                Supportive[i] = Supportive[i] / Peoplenumber[3];
+                Supportive[i] = Math.round(Supportive[i]*100) / 100;
+            }
+            // 關懷型
+            if(Peoplenumber[4] != 0){
+                Caring[i] = Caring[i] = Peoplenumber[4];
+                Caring[i] = Math.round(Caring[i]*100) / 100;
+            }
+        }
+        GWO[j][5] = Outstanding;        // GWO[j][5] 紀錄 傑出型 群心
+        GWO[j][6] = AchievementType;    // GWO[j][6] 紀錄 成就型 群心
+        GWO[j][7] = GeneralType;        // GWO[j][7] 紀錄 一般型 群心
+        GWO[j][8] = Supportive;         // GWO[j][8] 紀錄 扶持型 群心
+        GWO[j][9] = Caring;             // GWO[j][9] 紀錄 關懷型 群心
+
+        // console.log("-------------------------------計算完群心之後-------------------------------");
+        // console.log("各群人數:",Peoplenumber);
+        // console.log("權重值:",GWO[j]);
+        // console.log("傑出型:",Outstanding);
+        // console.log("成就型",AchievementType);
+        // console.log("一般型",GeneralType);
+        // console.log("扶持型",Supportive);
+        // console.log("關懷型",Caring);
+
+        // 結束計算每群的群心
+
+        // 計算每個點到群心的距離
+        for(let i = 0 ; i < UserRFMP.length ; i++){
+            if(UserRFMP[i][13] == "傑出型"){
+                intradis = Math.sqrt(Math.pow(UserRFMP[i][14]-Outstanding[0], 2) + Math.pow(UserRFMP[i][15]-Outstanding[1], 2) + Math.pow(UserRFMP[i][16]-Outstanding[2], 2) + Math.pow(UserRFMP[i][17]-Outstanding[3], 2));
+            }
+            else if(UserRFMP[i][13] == "成就型"){
+                intradis = Math.sqrt(Math.pow(UserRFMP[i][14]-AchievementType[0], 2) + Math.pow(UserRFMP[i][15]-AchievementType[1], 2) + Math.pow(UserRFMP[i][16]-AchievementType[2], 2) + Math.pow(UserRFMP[i][17]-AchievementType[3], 2));
+            }
+            else if(UserRFMP[i][13] == "一般型"){
+                intradis = Math.sqrt(Math.pow(UserRFMP[i][14]-GeneralType[0], 2) + Math.pow(UserRFMP[i][15]-GeneralType[1], 2) + Math.pow(UserRFMP[i][16]-GeneralType[2], 2) + Math.pow(UserRFMP[i][17]-GeneralType[3], 2));
+            }
+            else if(UserRFMP[i][13] == "扶持型"){
+                intradis = Math.sqrt(Math.pow(UserRFMP[i][14]-Supportive[0], 2) + Math.pow(UserRFMP[i][15]-Supportive[1], 2) + Math.pow(UserRFMP[i][16]-Supportive[2], 2) + Math.pow(UserRFMP[i][17]-Supportive[3], 2));
+            }
+            else if(UserRFMP[i][13] == "關懷型"){
+                intradis = Math.sqrt(Math.pow(UserRFMP[i][14]-Caring[0], 2) + Math.pow(UserRFMP[i][15]-Caring[1], 2) + Math.pow(UserRFMP[i][16]-Caring[2], 2) + Math.pow(UserRFMP[i][17]-Caring[3], 2));
+            }
+
+            // 找到群內每一點到群心之間的距離取最大
+            if(intradis > Maxintradis){
+                Maxintradis = intradis;
+            }
+
+        } // 結束 計算每個點到群心的距離
+
+
+        // [傑出型,成就型,一般型,扶持型,關懷型]
+        // [   0  ,  1  ,   2  ,  3  ,   4  ]
+
+
+        // 計算群間的距離，該群人數不等於0才能做群間計算
+        // 傑出型 － 成就型 距離
+        if(Peoplenumber[0] != 0 && Peoplenumber[1] != 0){
+            interdis = Math.sqrt(Math.pow(Outstanding[0]-AchievementType[0], 2) + Math.pow(Outstanding[1]-AchievementType[1], 2) + Math.pow(Outstanding[2]-AchievementType[2], 2) + Math.pow(Outstanding[3]-AchievementType[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis  // 找到每群群心之間的距離取最小
+            }
+        }
+        // 傑出型 － 一般型 距離
+        if(Peoplenumber[0] != 0 && Peoplenumber[2] != 0){
+            interdis = Math.sqrt(Math.pow(Outstanding[0]-GeneralType[0], 2) + Math.pow(Outstanding[1]-GeneralType[1], 2) + Math.pow(Outstanding[2]-GeneralType[2], 2) + Math.pow(Outstanding[3]-GeneralType[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 傑出型 － 扶持型 距離
+        if(Peoplenumber[0] != 0 && Peoplenumber[3] != 0){
+            interdis = Math.sqrt(Math.pow(Outstanding[0]-Supportive[0], 2) + Math.pow(Outstanding[1]-Supportive[1], 2) + Math.pow(Outstanding[2]-Supportive[2], 2) + Math.pow(Outstanding[3]-Supportive[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 傑出型 － 關懷型 距離
+        if(Peoplenumber[0] != 0 && Peoplenumber[4] != 0){
+            interdis = Math.sqrt(Math.pow(Outstanding[0]-Caring[0], 2) + Math.pow(Outstanding[1]-Caring[1], 2) + Math.pow(Outstanding[2]-Caring[2], 2) + Math.pow(Outstanding[3]-Caring[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 成就型 － 一般型 距離
+        if(Peoplenumber[1] != 0 && Peoplenumber[2] != 0){
+            interdis = Math.sqrt(Math.pow(AchievementType[0]-GeneralType[0], 2) + Math.pow(AchievementType[1]-GeneralType[1], 2) + Math.pow(AchievementType[2]-GeneralType[2], 2) + Math.pow(AchievementType[3]-GeneralType[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 成就型 － 扶持型 距離
+        if(Peoplenumber[1] != 0 && Peoplenumber[3] != 0){
+            interdis = Math.sqrt(Math.pow(AchievementType[0]-Supportive[0], 2) + Math.pow(AchievementType[1]-Supportive[1], 2) + Math.pow(AchievementType[2]-Supportive[2], 2) + Math.pow(AchievementType[3]-Supportive[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 成就型 － 關懷型 距離
+        if(Peoplenumber[1] != 0 && Peoplenumber[4] != 0){
+            interdis = Math.sqrt(Math.pow(AchievementType[0]-Caring[0], 2) + Math.pow(AchievementType[1]-Caring[1], 2) + Math.pow(AchievementType[2]-Caring[2], 2) + Math.pow(AchievementType[3]-Caring[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 一般型 － 扶持型 距離
+        if(Peoplenumber[2] != 0 && Peoplenumber[3] != 0){
+            interdis = Math.sqrt(Math.pow(GeneralType[0]-Supportive[0], 2) + Math.pow(GeneralType[1]-Supportive[1], 2) + Math.pow(GeneralType[2]-Supportive[2], 2) + Math.pow(GeneralType[3]-Supportive[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 一般型 － 關懷型 距離
+        if(Peoplenumber[2] != 0 && Peoplenumber[4] != 0){
+            interdis = Math.sqrt(Math.pow(GeneralType[0]-Caring[0], 2) + Math.pow(GeneralType[1]-Caring[1], 2) + Math.pow(GeneralType[2]-Caring[2], 2) + Math.pow(GeneralType[3]-Caring[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+        // 扶持型 － 關懷型 距離
+        if(Peoplenumber[3] != 0 && Peoplenumber[4] != 0){
+            interdis = Math.sqrt(Math.pow(Supportive[0]-Caring[0], 2) + Math.pow(Supportive[1]-Caring[1], 2) + Math.pow(Supportive[2]-Caring[2], 2) + Math.pow(Supportive[3]-Caring[3], 2));
+            if (interdis < Mininterdis){
+                Mininterdis = interdis
+            }
+        }
+
+        // console.log("Maxintradis:",Math.round(Maxintradis*100)/100);    // 群內最大
+        // console.log("Mininterdis:",Math.round(Mininterdis*100)/100);  // 群間最小
+        // console.log("Maxintradis:",Maxintradis);    // 群內最大
+        // console.log("Mininterdis:",Mininterdis);  // 群間最小
+
+        Dunn = Mininterdis / Maxintradis;   // Dunn 適存值計算
+        GWO[j][4] = Math.round(Dunn*10000)/10000; // GWO[j][4] 存 Dunn適存值
+        
+    } // 結束適存值計算
+
+    // console.log(GWO);
+
+    // 進行適存值的排序，找出 alpha(α)、Beta(β)、Delta(δ)
+    var GWOtime = GWOSize;
+    while(GWOtime > 1){
+        GWOtime--;
+        for(let i = 0; i < GWOSize-1;i++){
+            var temp;
+            if( GWO[i][4] < GWO[i+1][4] ){
+                temp = GWO[i];
+                GWO[i] = GWO[i+1];
+                GWO[i+1] = temp;
+            }
+        }
+    }
+
+    // console.log(GWO);
+
+    BestGWO = GWO[0];
+    // console.log("GWO[0]:",GWO[0]);
+    // console.log("BestGWO:",BestGWO);
+
+} // 結束 DunnIndex 的副程式
 
 // 以上宜靜 2020.05.18
 
