@@ -1446,14 +1446,14 @@ router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
 });
 
 var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型,R%,F%,M%,P%]
-                   //                    [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ,14,15,16,17]
+//                                        [   0   ,  1  ,  2 ,  3  ,  4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12 ,    13   ,14,15,16,17]
 var Rpercent,Fpercent,Mpercent,Ppercent;
 var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有記錄的人的記錄丟進去 // 2020.05.17
 var Rday;
 var RFtaskStack = [];
 var GWOSize = 12,RFMPweight = 4;
 var GWO = []; // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心]
-                                // [  0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8   ,    9    ]
+//                                 [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ]
 var BestGWO=[]; //紀錄最好的權重值
 var GWOfirstfalg = true;
 var GWOalpha = [],GWObeta = [],GWOdelta = [];
@@ -1874,11 +1874,11 @@ function GwoLevy(tMax) {
     var r1,r2; // r1 & r2 為 隨機的[0,1]值
     var c = [];
     var A = [];
+    r1 = Math.round(Math.random()*10000)/10000;
+    r2 = Math.round(Math.random()*10000)/10000;
     for(let i = 0 ; i < 3 ; i++){
-        r1 = Math.round(Math.random()*10000)/10000;
-        r2 = Math.round(Math.random()*10000)/10000;
         c[i] = 2*r2;
-        A[i] = 2*a*r1-a;;
+        A[i] = (2*a*r1)-a;;
     }
     var Dalpha = [],Dbeta = [],Ddelta = [];   // alpha(α)、Beta(β)、Delta(δ)
     var X1 = [],X2 = [],X3 = []; 
@@ -1886,7 +1886,7 @@ function GwoLevy(tMax) {
     while(t <= tMax){
         // 更新所有灰狼位置
         // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心]
-                            [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8   ,    9    ]
+        //                   [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ]
         for(let i = 0 ; i < GWOSize ; i++){
             // step 1
             for(let j = 0 ; j < RFMPweight ; j++){
@@ -1909,9 +1909,9 @@ function GwoLevy(tMax) {
 
         // 更新參數 a、r1、r2、c、A
         a = 2-(2*t/tMax);
+        r1 = Math.round(Math.random()*10000)/10000;
+        r2 = Math.round(Math.random()*10000)/10000;
         for(let i = 0 ; i < 3 ; i++){
-            r1 = Math.round(Math.random()*10000)/10000;
-            r2 = Math.round(Math.random()*10000)/10000;
             c[i] = 2*r2;
             A[i] = 2*a*r1-a;;
         }
@@ -1919,8 +1919,7 @@ function GwoLevy(tMax) {
         DunnIndex();
         t = t + 1;
     }
-    
-    
+
     console.log("BestGWO:",BestGWO);
     console.log("GWOalpha:",GWOalpha);
     console.log("GWObeta:",GWObeta);
@@ -2388,6 +2387,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)
 
     User.getUserById(req.user.id, function (err, user) {
+        
         if (err) throw err;
         if (user.isadmin == false) { //如有其他管理者 在這加
             res.redirect('/home')
