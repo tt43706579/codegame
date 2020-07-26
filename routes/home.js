@@ -1452,8 +1452,8 @@ var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有
 var Rday;
 var RFtaskStack = [];
 var GWOSize = 12,RFMPweight = 4;
-var GWO = []; // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心]
-//                                 [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ]
+var GWO = []; // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心, 分群人數,傑出型人數,成就型人數,一般型人數,扶持型人數,一般型人數,不在區間內人數]
+//                                 [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ,     10  ,    11   ,    12   ,    13    ,     14  ,    15   ,      16     ]
 var BestGWO=[]; //紀錄最好的權重值
 var GWOfirstfalg = true;
 var GWOalpha = [],GWObeta = [],GWOdelta = [];
@@ -1760,66 +1760,78 @@ router.post('/managementRFMP', function (req, res, next) {
                                     if (err) throw err;
                                 })
                             }
-                            GWOfirstfalg = true; // 還沒產生初始解
-                            /*   start GWO algorithm   */ 
-                            /*     開始    灰狼演算法   */ 
-                            // 隨機產生 GWOSize 組4維初始解
-                            for(let i = 0 ; i < GWOSize ; i++){
-                                // 產生0~1的亂數 且設成百分比
-                                // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
-                                GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+
+                            if(userlen > 10){
+                                GWOfirstfalg = true; // 還沒產生初始解
+                                /*   start GWO algorithm   */ 
+                                /*     開始    灰狼演算法   */ 
+                                // 隨機產生 GWOSize 組4維初始解
+
+                                for(let i = 0 ; i < GWOSize ; i++){
+                                    // 產生0~1的亂數 且設成百分比
+                                    // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
+                                    GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+                                }
+
+                                BestGWO=[];
+                                GWOfirstfalg = true;
+                                // 進入灰狼演算法進行迭代
+                                // console.log("-------------------------------現在在 主程式-------------------------------");
+                                GwoLevy(5);
+                                //DunnIndex();
+                            }else{
+                                BestGWO=[0.5,0.5,0.5,0.5];
                             }
 
-                            BestGWO=[];
-                            GWOfirstfalg = true;
-                            // 進入灰狼演算法進行迭代
-                            console.log("-------------------------------現在在 主程式-------------------------------");
-                            //GwoLevy(2);
-                            DunnIndex();
                             console.log("-------------------------------判斷學習者類型-------------------------------");
+                            console.log("BestGWO:",BestGWO);
+                            console.log("GWOalpha:",GWOalpha);
+                            console.log("GWObeta:",GWObeta);
+                            console.log("GWOdelta:",GWOdelta);
                             
-                            // // 計算 RFMP值 以及 學習者類型判斷
-                            // for(let i=0;i < UserRFMP.length; i++){
-                            //     if(UserRFMP[i][14] >= BestGWO[0]){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][14] 存 R%，BestGWO[0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
-                            //     else {  UserRFMP[i][9] = 0;     }
-                            //     if(UserRFMP[i][15] >= BestGWO[1]){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][15] 存 F%，BestGWO[1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
-                            //     else {  UserRFMP[i][10] = 0;    }
-                            //     if(UserRFMP[i][16] >= BestGWO[2]){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][16] 存 M%，BestGWO[2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
-                            //     else {  UserRFMP[i][11] = 0;    }
-                            //     if(UserRFMP[i][17] >= BestGWO[3]){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][17] 存 P%，BestGWO[3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
-                            //     else {  UserRFMP[i][12] = 0;    }
+                            
+                            // 計算 RFMP值 以及 學習者類型判斷
+                            for(let i=0;i < UserRFMP.length; i++){
+                                if(UserRFMP[i][14] >= BestGWO[0]){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][14] 存 R%，BestGWO[0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
+                                else {  UserRFMP[i][9] = 0;     }
+                                if(UserRFMP[i][15] >= BestGWO[1]){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][15] 存 F%，BestGWO[1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
+                                else {  UserRFMP[i][10] = 0;    }
+                                if(UserRFMP[i][16] >= BestGWO[2]){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][16] 存 M%，BestGWO[2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
+                                else {  UserRFMP[i][11] = 0;    }
+                                if(UserRFMP[i][17] >= BestGWO[3]){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][17] 存 P%，BestGWO[3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
+                                else {  UserRFMP[i][12] = 0;    }
 
-                            //     if(UserRFMP[i][5] == -1){  UserRFMP[i][9] = -1;     }   // UserRFMP[index][9] 存 R值
-                            //     if(UserRFMP[i][6] == -1){  UserRFMP[i][10] = -1;    }   // UserRFMP[index][10] 存 F值
-                            //     if(UserRFMP[i][7] == -1){  UserRFMP[i][11] = -1;    }   // UserRFMP[index][11] 存 M值
-                            //     if(UserRFMP[i][8] == -1){  UserRFMP[i][12] = -1;    }   // UserRFMP[index][12] 存 P值
+                                if(UserRFMP[i][5] == -1){  UserRFMP[i][9] = -1;     }   // UserRFMP[index][9] 存 R值
+                                if(UserRFMP[i][6] == -1){  UserRFMP[i][10] = -1;    }   // UserRFMP[index][10] 存 F值
+                                if(UserRFMP[i][7] == -1){  UserRFMP[i][11] = -1;    }   // UserRFMP[index][11] 存 M值
+                                if(UserRFMP[i][8] == -1){  UserRFMP[i][12] = -1;    }   // UserRFMP[index][12] 存 P值
 
                                 
-                            //     if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 3
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 4
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 5
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 6
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 7
-                            //     else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 8
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 9
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 10
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 11
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 12
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 13
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 14
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
-                            //     else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
-                            //     else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "不在區間";   } // 不在所選區間內
-                            //     else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
+                                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 3
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 4
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 5
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 6
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 7
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 8
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 9
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 10
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 11
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 12
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 13
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 14
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
+                                else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "不在區間";   } // 不在所選區間內
+                                else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
 
-                            //     // 檢查驗證用的
-                            //     // if(UserRFMP[i][0] == "C108110121@nkust.edu.tw"){
-                            //     //     console.log(UserRFMP[i]);
-                            //     // }
-                            // } // 結束計算 RFMP值 以及 學習者類型判斷
-                            console.log("-------------------------------回到 主程式-------------------------------");
+                                // 檢查驗證用的
+                                // if(UserRFMP[i][0] == "C108110121@nkust.edu.tw"){
+                                //     console.log(UserRFMP[i]);
+                                // }
+                            } // 結束計算 RFMP值 以及 學習者類型判斷
+                            // console.log("-------------------------------回到 主程式-------------------------------");
                             
                             for(let i=0;i < UserRFMP.length; i++){
                                 User.updateLearnerType(UserRFMP[i][0], UserRFMP[i][13] ,function (err, record) {
@@ -1861,72 +1873,138 @@ router.post('/managementRFMP', function (req, res, next) {
 });
 
 function GwoLevy(tMax) {
-    console.log("-------------------------------現在在 GwoLevy-------------------------------");
+    // console.log("-------------------------------現在在 GwoLevy-------------------------------");
+    BestGWO = [];
     GWOalpha = [];
     GWObeta = [];
     GWOdelta = [];
     DunnIndex(); // 計算首次灰狼適存值
+    // console.log("-------------------------------在 GwoLevy-------------------------------");
+    if(GWOfirstfalg){       // 為初始解，所以alpha(α)一定是目前最佳解
+        // BestGWO = GWOalpha;
+
+        for(let q = 0 ; q < GWOalpha.length ; q++){
+            BestGWO.push(GWOalpha[q]);
+        }
+        // console.log("在初始解的最佳解:",BestGWO);
+        //BBBBestGWO = BestGWO;
+        //console.log("在初始解的最佳解BBB:",BBBBestGWO);
+    }
+    
     GWOfirstfalg = false; // 初始解結束
 
     // 開始灰狼演算法
-    var t = 1;
+    var t = 0;
     var a = 2-(2*t/tMax);
     var r1,r2; // r1 & r2 為 隨機的[0,1]值
     var c = [];
     var A = [];
-    r1 = Math.round(Math.random()*10000)/10000;
-    r2 = Math.round(Math.random()*10000)/10000;
+
     for(let i = 0 ; i < 3 ; i++){
-        c[i] = 2*r2;
-        A[i] = (2*a*r1)-a;;
+        r1 = Math.round(Math.random()*10000)/10000;
+        r2 = Math.round(Math.random()*10000)/10000;
+        // console.log("r1:",r1);
+        // console.log("r2:",r2);
+        c[i] = Math.round(2*r2*10000)/10000;
+        A[i] = Math.round(((2*a*r1)-a)*10000)/10000;
     }
+
+    // console.log("c:",c);
+    // console.log("A:",A);
+    // console.log("a:",a);
+
     var Dalpha = [],Dbeta = [],Ddelta = [];   // alpha(α)、Beta(β)、Delta(δ)
     var X1 = [],X2 = [],X3 = []; 
     var Levy = [];  // 萊維飛行
-    while(t <= tMax){
+    while(t < tMax){
         // 更新所有灰狼位置
         // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心]
         //                   [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ]
+        // console.log("t:",t);
+        // console.log("tMax:",tMax);
         for(let i = 0 ; i < GWOSize ; i++){
+            // Debug
+            // console.log("-------------------------------在 GwoLevy Debug-------------------------------");
+            // console.log("第",t,"次的第",i,"隻灰狼的位置調整");
+            // console.log("BestGWO:",BestGWO);
+            // console.log("GWOalpha:",GWOalpha);
+            // console.log("GWObeta:",GWObeta);
+            // console.log("GWOdelta:",GWOdelta);
+            
+            for(let q = 0 ; q < RFMPweight ; q++){
+                if(t < 1){
+                    Levy[q] = 1;
+                }else{
+                    Levy[q] = Math.pow(t,-(Math.floor(Math.random() * (3 - 1 + 1)) + 1));
+                    console.log("t = ",t,"    Levy[",q,"] = ,",Levy[q]);
+                }
+                
+            }
+
             // step 1
             for(let j = 0 ; j < RFMPweight ; j++){
-                Dalpha[j] = Math.abs(c[0] * GWOalpha[j] - GWO[i][j]);
-                Dbeta[j] = Math.abs(c[1] * GWObeta[j] - GWO[i][j]);
-                Ddelta[j] = Math.abs(c[2] * GWOdelta[j] - GWO[i][j]);
+                Dalpha[j] = Math.round(Math.abs(c[0] * GWOalpha[j] - GWO[i][j])*10000)/10000;
+                Dbeta[j] = Math.round(Math.abs(c[1] * GWObeta[j] - GWO[i][j])*10000)/10000;
+                Ddelta[j] = Math.round(Math.abs(c[2] * GWOdelta[j] - GWO[i][j])*10000)/10000;
             }
+            // console.log("Dalpha:",Dalpha);
+            // console.log("Dbeta:",Dbeta);
+            // console.log("Ddelta:",Ddelta);
             // step 2
             for(let j = 0 ; j < RFMPweight ; j++){
-                X1[j] = GWOalpha[j] - A[i]*Dalpha[j];
-                X2[j] = GWObeta[j] - A[i]*Dbeta[j];
-                X3[j] = GWOdelta[j] - A[i]*Ddelta[j];
+                X1[j] = Math.round((GWOalpha[j] - (A[0]*Dalpha[j]))*10000)/10000;
+                X2[j] = Math.round((GWObeta[j] - (A[1]*Dbeta[j]))*10000)/10000;
+                X3[j] = Math.round((GWOdelta[j] - (A[2]*Ddelta[j]))*10000)/10000;
             }
+            // console.log("X1:",X1);
+            // console.log("X2:",X2);
+            // console.log("X3:",X3);
             // step 3
-            GWO[i][0] = (X1[0]+X2[0]+X3[0])/3;
-            GWO[i][1] = (X1[1]+X2[1]+X3[1])/3;
-            GWO[i][2] = (X1[2]+X2[2]+X3[2])/3;
-            GWO[i][3] = (X1[3]+X2[3]+X3[3])/3;
+            GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000;
+            GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000;
+            GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000;
+            GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000;
+            console.log("沒有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
+            // GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000 * Levy[0];
+            // GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000 * Levy[1];
+            // GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000 * Levy[2];
+            // GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000 * Levy[3];
+            // console.log("有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
+            // console.log("GWO[",i,"]:",GWO[i]);
         }
 
         // 更新參數 a、r1、r2、c、A
+        // console.log("-------------------------------在 GwoLevy 參數調整-------------------------------");
+        t = t + 1;
         a = 2-(2*t/tMax);
-        r1 = Math.round(Math.random()*10000)/10000;
-        r2 = Math.round(Math.random()*10000)/10000;
         for(let i = 0 ; i < 3 ; i++){
-            c[i] = 2*r2;
-            A[i] = 2*a*r1-a;;
+            r1 = Math.round(Math.random()*10000)/10000;
+            r2 = Math.round(Math.random()*10000)/10000;
+            // console.log("r1:",r1);
+            // console.log("r2:",r2);
+            c[i] = Math.round(2*r2*10000)/10000;
+            A[i] = Math.round(((2*a*r1)-a)*10000)/10000;
         }
+        // console.log("c:",c);
+        // console.log("A:",A);
+        // console.log("a:",a);
+
         // 重新計算適存值
         DunnIndex();
-        t = t + 1;
+        console.log("-------------------------------在 GwoLevy 迭代裡-------------------------------");
+        if(GWOalpha[4] >　BestGWO[4]){  // 判斷此次迭代是否比最佳解好，有 則取代
+            console.log("GWOalpha[4]:",GWOalpha[4]);
+            console.log("BestGWO[4]:",　BestGWO[4]);
+            // BestGWO = GWOalpha;
+            BestGWO = [];
+            for(let q = 0 ; q < GWOalpha.length ; q++){
+                BestGWO.push(GWOalpha[q]);
+            }
+        }
     }
 
-    console.log("BestGWO:",BestGWO);
-    console.log("GWOalpha:",GWOalpha);
-    console.log("GWObeta:",GWObeta);
-    console.log("GWOdelta:",GWOdelta);
-    
     // console.log("GwoLevy");
-    console.log("-------------------------------結束 GwoLevy-------------------------------");
+    // console.log("-------------------------------結束 GwoLevy-------------------------------");
 }
 
 var interdis = 0, intradis = 0; // 記錄群間距離，紀錄到群心距離
@@ -1934,7 +2012,7 @@ var Mininterdis = 9999999; // 計算每群群心之間的距離取最小
 var Maxintradis = 0; // 計算每群內每一點到群心之間的距離取最大
 // 因為要達成 群間距離最大 & 群內距離最小 的分群條件，才算是最好的分群
 var Dunn = 0;   // 最終的適存值計算
-
+var GroupNum = 0;
 var Outstanding = [0,0,0,0];   // 傑出型
 var AchievementType = [0,0,0,0];   // 成就型
 var GeneralType = [0,0,0,0]; // 一般型
@@ -1945,13 +2023,12 @@ var Peoplenumber = [0,0,0,0,0,0]; // [傑出型,成就型,一般型,扶持型,�
 
 
 function DunnIndex() {
-    console.log("-------------------------------現在在 Dunn Index-------------------------------");
-    // console.log("-------------------------------新的計算-------------------------------");
-    // console.log("現在權重值:[",j,"]:",GWO[j]);
+    // console.log("-------------------------------現在在 Dunn Index-------------------------------");
     
     // 計算適存值
-    for(let j= 0; j < 2 ; j++){
-        console.log("權重值:",GWO[j]);
+    for(let j = 0; j < GWOSize ; j++){
+        //console.log("-------------------------------新的計算-------------------------------");
+        GroupNum = 0;
         // 計算 RFMP值 以及 學習者類型判斷
         for(let i=0;i < UserRFMP.length; i++){
             if(UserRFMP[i][14] >= GWO[j][0]){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][14] 存 R%，GWO[j][0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
@@ -2014,11 +2091,6 @@ function DunnIndex() {
         Peoplenumber = [0,0,0,0,0,0]; // [傑出型,成就型,一般型,扶持型,關懷型,不在區間內]
         //  紀錄每群人數                  [   0  ,  1  ,   2  ,  3  ,   4 ,    5    ]
 
-
-        // console.log("-------------------------------未計算前-------------------------------");
-        // console.log("現在在權重值:[",j,"]:");
-        // console.log("各群人數:",Peoplenumber);
-
         // 計算每群的群心
         for(let i = 0 ; i < UserRFMP.length ; i++){
             if(UserRFMP[i][13] == "傑出型"){
@@ -2059,22 +2131,24 @@ function DunnIndex() {
                 Peoplenumber[5] = Peoplenumber[5]+1;    // 加總 不在區間內 人數
             }
         }
+        
+
+        // console.log("現在權重值:[",j,"]:",GWO[j]);
+        // console.log("各群人數:",Peoplenumber);
 
         // 如果分群不是5群，此次權重值重新計算，使分群直到分為5群為止
-        if(Peoplenumber[0] == 0 && Peoplenumber[1] == 0 && Peoplenumber[2] == 0 && Peoplenumber[3] == 0 && Peoplenumber[4] == 0 && Peoplenumber[5] == userlen){
-            break;
-        }else if(Peoplenumber[0] == 0 || Peoplenumber[1] == 0 || Peoplenumber[2] == 0 || Peoplenumber[3] == 0 || Peoplenumber[4] == 0){
-            // console.log("-------------------------------重置前-------------------------------");
-            // console.log("現在在權重值:[",j,"]:");
-            // console.log("各群人數:",Peoplenumber);
-            // console.log("重置GWO[",j,"]");
-            
-            if(GWOfirstfalg){ // 為初始解才動作
-                GWO[j] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
-            }
-            j = j-1;    // 因為要重新計算這次的適存值，所以j-1，因為continue會讓j+1
-            continue;
-        }
+        // if(Peoplenumber[0] == 0 && Peoplenumber[1] == 0 && Peoplenumber[2] == 0 && Peoplenumber[3] == 0 && Peoplenumber[4] == 0 && Peoplenumber[5] != 0){
+        //     break;
+        // }else if(Peoplenumber[0] == 0 || Peoplenumber[1] == 0 || Peoplenumber[2] == 0 || Peoplenumber[3] == 0 || Peoplenumber[4] == 0){
+        //     console.log("-------------------------------進入 初始解重置-------------------------------");
+        //     console.log("重置GWO[",j,"]");
+        //     console.log("旗標:",GWOfirstfalg);
+        //     if(GWOfirstfalg){ // 為初始解才動作
+        //         GWO[j] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+        //     }
+        //     j = j-1;    // 因為要重新計算這次的適存值，所以j-1，因為continue會讓j+1
+        //     continue;
+        // }
 
         for(let i = 0 ; i < 4 ; i++){
             // 傑出型
@@ -2110,8 +2184,8 @@ function DunnIndex() {
         GWO[j][9] = Caring;             // GWO[j][9] 紀錄 關懷型 群心
 
         // console.log("-------------------------------計算完群心之後-------------------------------");
+        // console.log("現在權重值:[",j,"]:",GWO[j]);
         // console.log("各群人數:",Peoplenumber);
-        // console.log("權重值:",GWO[j]);
         // console.log("傑出型:",Outstanding);
         // console.log("成就型",AchievementType);
         // console.log("一般型",GeneralType);
@@ -2222,17 +2296,39 @@ function DunnIndex() {
             }
         }
 
-        // console.log("Maxintradis:",Math.round(Maxintradis*100)/100);    // 群內最大
-        // console.log("Mininterdis:",Math.round(Mininterdis*100)/100);  // 群間最小
+        // 紀錄群數
+        for(let q = 0; q < Peoplenumber.length-1 ; q++){
+            if( Peoplenumber[q] != 0){
+                GroupNum = GroupNum + 1;
+            }
+        }
+        GWO[j][10] = GroupNum;
+        GWO[j][11] = Peoplenumber[0];
+        GWO[j][12] = Peoplenumber[1];
+        GWO[j][13] = Peoplenumber[2];
+        GWO[j][14] = Peoplenumber[3];
+        GWO[j][15] = Peoplenumber[4];
+        GWO[j][16] = Peoplenumber[5];
+
+        if( GroupNum > 1 ){
+            Dunn = Mininterdis / Maxintradis * (GroupNum / 5);   // Dunn 適存值計算 * 懲罰函式 (所分的群數 / 總群數)
+            GWO[j][4] = Math.round(Dunn*1000000)/1000000; // GWO[j][4] 存 Dunn適存值 四捨五入
+        }else{
+            Dunn = 0;
+            GWO[j][4] = Math.round(Dunn*10000000000)/10000000000;
+        }
+        
+
         // console.log("Maxintradis:",Maxintradis);    // 群內最大
         // console.log("Mininterdis:",Mininterdis);  // 群間最小
-
-        Dunn = Mininterdis / Maxintradis;   // Dunn 適存值計算
-        GWO[j][4] = Math.round(Dunn*10000)/10000; // GWO[j][4] 存 Dunn適存值 四捨五入
+        // console.log("Maxintradis:",Math.round(Maxintradis*100)/100);    // 群內最大
+        // console.log("Mininterdis:",Math.round(Mininterdis*100)/100);  // 群間最小
+        // console.log("GroupNum:",GroupNum);
+        // console.log("fitness:",Dunn);
+        // console.log("現在權重值:[",j,"]:",GWO[j]);
         
     } // 結束適存值計算
 
-    // console.log(GWO);
 
     // 進行適存值的排序，找出 alpha(α)、Beta(β)、Delta(δ)
     var GWOtime = GWOSize;
@@ -2248,20 +2344,36 @@ function DunnIndex() {
         }
     }
 
-    GWOalpha = GWO[0];
-    GWObeta = GWO[1];
-    GWOdelta = GWO[2];
+
+    GWOalpha = [];
+    GWObeta = [];
+    GWOdelta = [];
+    for(let q = 0 ; q < GWO[0].length ; q++){
+        GWOalpha.push(GWO[0][q]);
+    }
+    for(let q = 0 ; q < GWO[1].length ; q++){
+        GWObeta.push(GWO[1][q]);
+    }
+    for(let q = 0 ; q < GWO[2].length ; q++){
+        GWOdelta.push(GWO[2][q]);
+    }
+
+
+    // GWOalpha = GWO[0];
+    // GWObeta = GWO[1];
+    // GWOdelta = GWO[2];
+    // console.log("-------------------------------在 Dunn Index 的灰狼值-------------------------------");
+    // console.log("BestGWO:",BestGWO);
+    // console.log("GWOalpha:",GWOalpha);
+    // console.log("GWObeta:",GWObeta);
+    // console.log("GWOdelta:",GWOdelta);
 
     // console.log(GWO);
-    if(GWOfirstfalg){       // 為初始解，所以alpha(α)一定是目前最佳解
-        BestGWO = GWOalpha;
-    }
-    if(GWOalpha >　BestGWO){  // 判斷此次迭代是否比最佳解好，有 則取代
-        BestGWO = GWOalpha;
-    }
+    
 
 
-    console.log("-------------------------------結束 Dunn Index-------------------------------");
+
+    // console.log("-------------------------------結束 Dunn Index-------------------------------");
 
 } // 結束 DunnIndex 的副程式
 
