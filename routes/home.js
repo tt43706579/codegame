@@ -12,6 +12,7 @@ var EquipmentRecord = require('../models/equipment')
 var GameMapRecord = require('../models/gameMap')
 var testDict = require('../models/dataJson/dictionaryJson')
 var testEquip = require('../models/dataJson/equipmentJson')
+var math = require('../public/js/math.js')
 
 var multer = require("multer");
 // 这里dest对应的值是你要将上传的文件存的文件夹
@@ -1452,7 +1453,7 @@ var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有
 var Rday;
 var RFtaskStack = [];
 var GWOSize = 12,RFMPweight = 4;
-var GWO = []; // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心, 分群人數,傑出型人數,成就型人數,一般型人數,扶持型人數,一般型人數,不在區間內人數]
+var GWO = []; // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心, 分群人數,傑出型人數,成就型人數,一般型人數,扶持型人數,關懷型人數,不在區間內人數]
 //                                 [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ,     10  ,    11   ,    12   ,    13    ,     14  ,    15   ,      16     ]
 var BestGWO=[]; //紀錄最好的權重值
 var GWOfirstfalg = true;
@@ -1777,8 +1778,8 @@ router.post('/managementRFMP', function (req, res, next) {
                                 GWOfirstfalg = true;
                                 // 進入灰狼演算法進行迭代
                                 // console.log("-------------------------------現在在 主程式-------------------------------");
-                                GwoLevy(5);
-                                //DunnIndex();
+                                GwoLevy(200);
+                                
                             }else{
                                 BestGWO=[0.5,0.5,0.5,0.5];
                             }
@@ -1872,6 +1873,7 @@ router.post('/managementRFMP', function (req, res, next) {
     
 });
 
+// 灰狼演算法 + LevyFlight
 function GwoLevy(tMax) {
     // console.log("-------------------------------現在在 GwoLevy-------------------------------");
     BestGWO = [];
@@ -1881,14 +1883,10 @@ function GwoLevy(tMax) {
     DunnIndex(); // 計算首次灰狼適存值
     // console.log("-------------------------------在 GwoLevy-------------------------------");
     if(GWOfirstfalg){       // 為初始解，所以alpha(α)一定是目前最佳解
-        // BestGWO = GWOalpha;
-
         for(let q = 0 ; q < GWOalpha.length ; q++){
             BestGWO.push(GWOalpha[q]);
         }
         // console.log("在初始解的最佳解:",BestGWO);
-        //BBBBestGWO = BestGWO;
-        //console.log("在初始解的最佳解BBB:",BBBBestGWO);
     }
     
     GWOfirstfalg = false; // 初始解結束
@@ -1916,6 +1914,7 @@ function GwoLevy(tMax) {
     var Dalpha = [],Dbeta = [],Ddelta = [];   // alpha(α)、Beta(β)、Delta(δ)
     var X1 = [],X2 = [],X3 = []; 
     var Levy = [];  // 萊維飛行
+    var step,Levystepsize;
     while(t < tMax){
         // 更新所有灰狼位置
         // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,傑出型群心,成就型群心,一般型群心,扶持型群心,一般型群心]
@@ -1930,18 +1929,8 @@ function GwoLevy(tMax) {
             // console.log("GWOalpha:",GWOalpha);
             // console.log("GWObeta:",GWObeta);
             // console.log("GWOdelta:",GWOdelta);
-            
-            for(let q = 0 ; q < RFMPweight ; q++){
-                if(t < 1){
-                    Levy[q] = 1;
-                }else{
-                    Levy[q] = Math.pow(t,-(Math.floor(Math.random() * (3 - 1 + 1)) + 1));
-                    console.log("t = ",t,"    Levy[",q,"] = ,",Levy[q]);
-                }
-                
-            }
-
-            // step 1
+            Levy = [];
+            // GWO step 1
             for(let j = 0 ; j < RFMPweight ; j++){
                 Dalpha[j] = Math.round(Math.abs(c[0] * GWOalpha[j] - GWO[i][j])*10000)/10000;
                 Dbeta[j] = Math.round(Math.abs(c[1] * GWObeta[j] - GWO[i][j])*10000)/10000;
@@ -1950,7 +1939,7 @@ function GwoLevy(tMax) {
             // console.log("Dalpha:",Dalpha);
             // console.log("Dbeta:",Dbeta);
             // console.log("Ddelta:",Ddelta);
-            // step 2
+            // GWO step 2
             for(let j = 0 ; j < RFMPweight ; j++){
                 X1[j] = Math.round((GWOalpha[j] - (A[0]*Dalpha[j]))*10000)/10000;
                 X2[j] = Math.round((GWObeta[j] - (A[1]*Dbeta[j]))*10000)/10000;
@@ -1959,17 +1948,43 @@ function GwoLevy(tMax) {
             // console.log("X1:",X1);
             // console.log("X2:",X2);
             // console.log("X3:",X3);
-            // step 3
-            GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000;
-            GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000;
-            GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000;
-            GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000;
-            console.log("沒有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
-            // GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000 * Levy[0];
-            // GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000 * Levy[1];
-            // GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000 * Levy[2];
-            // GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000 * Levy[3];
-            // console.log("有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
+            // GWO step 3
+            // GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000;
+            // GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000;
+            // GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000;
+            // GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000;
+            // console.log("沒有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
+
+            // 計算LevyFlight的RFMP隨機行走值
+            //R
+            step = LevyFlight_Mantegna();
+            Levystepsize = 0.01 * step * (GWO[i][0] - BestGWO[0]) ;
+            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
+            //F
+            step = LevyFlight_Mantegna();
+            Levystepsize = 0.01 * step * (GWO[i][1] - BestGWO[1]) ;
+            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
+            //M
+            step = LevyFlight_Mantegna();
+            Levystepsize = 0.01 * step * (GWO[i][2] - BestGWO[2]) ;
+            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
+            //P
+            step = LevyFlight_Mantegna();
+            Levystepsize = 0.01 * step * (GWO[i][3] - BestGWO[3]) ;
+            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
+
+            // 
+            GWO[i][0] = Math.round((((X1[0]+X2[0]+X3[0])/3) + Levy[0])*10000)/10000;
+            GWO[i][1] = Math.round((((X1[1]+X2[1]+X3[1])/3) + Levy[1])*10000)/10000;
+            GWO[i][2] = Math.round((((X1[2]+X2[2]+X3[2])/3) + Levy[2])*10000)/10000;
+            GWO[i][3] = Math.round((((X1[3]+X2[3]+X3[3])/3) + Levy[3])*10000)/10000;
+
+            // 權重值超出界線的修正
+            for(let z = 0; z < RFMPweight ; z++){
+                if(GWO[i][z] > 100) {  GWO[i][z] = 100; }
+                if(GWO[i][z] < 0) {  GWO[i][z] = 0; }
+            }
+            console.log("有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
             // console.log("GWO[",i,"]:",GWO[i]);
         }
 
@@ -2007,6 +2022,33 @@ function GwoLevy(tMax) {
     // console.log("-------------------------------結束 GwoLevy-------------------------------");
 }
 
+
+// LevyFlight_MantegnaAlgorithm的計算
+function LevyFlight_Mantegna() {
+    var Levyalpha = 1.5;
+
+    // 計算 sigmaU、sigmaV
+    var sigmaU_1 = math.gamma(Levyalpha + 1) * Math.sin((Math.PI * Levyalpha) / 2);
+    var sigmaU_2 = math.gamma((Levyalpha + 1) / 2) * Levyalpha * Math.pow(2, (Levyalpha - 1) / 2);
+    var sigmaU = Math.pow((sigmaU_1 / sigmaU_2), 1 / Levyalpha);
+    var sigmaV = 1;
+
+    // 計算 步長 step
+    var u = randnm_Gaussion() * sigmaU;
+    var v = randnm_Gaussion() * sigmaV;
+    var step = u / Math.pow(Math.abs(v), 1 / Levyalpha);
+    
+    return step;
+}
+
+// 使用Box-Muller變換的高斯變數。
+function randnm_Gaussion() {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); // 轉換 [0,1) to (0,1)
+    while(v === 0) v = Math.random(); // 轉換 [0,1) to (0,1)
+    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+}
+
 var interdis = 0, intradis = 0; // 記錄群間距離，紀錄到群心距離
 var Mininterdis = 9999999; // 計算每群群心之間的距離取最小
 var Maxintradis = 0; // 計算每群內每一點到群心之間的距離取最大
@@ -2021,7 +2063,7 @@ var Caring = [0,0,0,0]; // 關懷型
 var Peoplenumber = [0,0,0,0,0,0]; // [傑出型,成就型,一般型,扶持型,關懷型,不在區間內]
 //  紀錄每群人數                      [   0  ,  1  ,   2  ,  3  ,   4 ,    5    ]
 
-
+// 計算灰狼演算法適存值
 function DunnIndex() {
     // console.log("-------------------------------現在在 Dunn Index-------------------------------");
     
