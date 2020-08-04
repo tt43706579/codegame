@@ -1760,6 +1760,7 @@ router.post('/managementRFMP', function (req, res, next) {
                                 })
                             }
 
+<<<<<<< HEAD
                             
                             /*   start GWO algorithm   */ 
                             /*     開始    灰狼演算法   */ 
@@ -1769,6 +1770,28 @@ router.post('/managementRFMP', function (req, res, next) {
                                 // 產生0~1的亂數 且設成百分比
                                 // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
                                 GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+=======
+                            if(userlen > 10){
+                                GWOfirstfalg = true; // 還沒產生初始解
+                                /*   start GWO algorithm   */ 
+                                /*     開始    灰狼演算法   */ 
+                                // 隨機產生 GWOSize 組4維初始解
+
+                                for(let i = 0 ; i < GWOSize ; i++){
+                                    // 產生0~1的亂數 且設成百分比
+                                    // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
+                                    GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
+                                }
+
+                                BestGWO=[];
+                                GWOfirstfalg = true;
+                                // 進入灰狼演算法進行迭代
+                                // console.log("-------------------------------現在在 主程式-------------------------------");
+                                GwoLevy(500);
+                                
+                            }else{
+                                BestGWO=[0.5,0.5,0.5,0.5];
+>>>>>>> be6171f854682f27f2f63226672684af2832099b
                             }
 
                             BestGWO=[];
@@ -1942,7 +1965,7 @@ function GwoLevy(tMax) {
             // console.log("X1:",X1);
             // console.log("X2:",X2);
             // console.log("X3:",X3);
-            // GWO step 3
+            // GWO step 3 沒有Levy
             // GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000;
             // GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000;
             // GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000;
@@ -1950,28 +1973,24 @@ function GwoLevy(tMax) {
             // console.log("沒有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
 
             // 計算LevyFlight的RFMP隨機行走值
-            //R
-            step = LevyFlight_Mantegna();
-            Levystepsize = 0.01 * step * (GWO[i][0] - BestGWO[0]) ;
-            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
-            //F
-            step = LevyFlight_Mantegna();
-            Levystepsize = 0.01 * step * (GWO[i][1] - BestGWO[1]) ;
-            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
-            //M
-            step = LevyFlight_Mantegna();
-            Levystepsize = 0.01 * step * (GWO[i][2] - BestGWO[2]) ;
-            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
-            //P
-            step = LevyFlight_Mantegna();
-            Levystepsize = 0.01 * step * (GWO[i][3] - BestGWO[3]) ;
-            Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
+            for(let z = 0; z < RFMPweight; z++){
+                step = LevyFlight_Mantegna();
+                //step = LevyFlight_Mantegna(Math.floor(Math.random()*3));
+                Levystepsize = 0.01 * step * (GWO[i][z] - BestGWO[z]) ;
+                Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
 
-            // 
+                // console.log("高斯:",randnm_Gaussion());
+                // console.log("stepP:",step);
+                // console.log("LevystepsizeP:",Levystepsize);
+            }
+            
+            // GWO step 3 有Levy
             GWO[i][0] = Math.round((((X1[0]+X2[0]+X3[0])/3) + Levy[0])*10000)/10000;
             GWO[i][1] = Math.round((((X1[1]+X2[1]+X3[1])/3) + Levy[1])*10000)/10000;
             GWO[i][2] = Math.round((((X1[2]+X2[2]+X3[2])/3) + Levy[2])*10000)/10000;
             GWO[i][3] = Math.round((((X1[3]+X2[3]+X3[3])/3) + Levy[3])*10000)/10000;
+
+            // console.log("Levy:",Levy);
 
             // 權重值超出界線的修正
             for(let z = 0; z < RFMPweight ; z++){
@@ -2020,6 +2039,7 @@ function GwoLevy(tMax) {
 // LevyFlight_MantegnaAlgorithm的計算
 function LevyFlight_Mantegna() {
     var Levyalpha = 1.5;
+    //var Levyalpha = alpha;
 
     // 計算 sigmaU、sigmaV
     var sigmaU_1 = math.gamma(Levyalpha + 1) * Math.sin((Math.PI * Levyalpha) / 2);
