@@ -1774,7 +1774,7 @@ router.post('/managementRFMP', function (req, res, next) {
                             BestGWO=[];
                             // 進入灰狼演算法進行迭代
                             // console.log("-------------------------------現在在 主程式-------------------------------");
-                            GwoLevy(500);
+                            GwoLevy(200);
                             /*     結束    灰狼演算法   */ 
                             /*   End GWO algorithm   */ 
                                 
@@ -1942,32 +1942,38 @@ function GwoLevy(tMax) {
             // console.log("X1:",X1);
             // console.log("X2:",X2);
             // console.log("X3:",X3);
+
+            /* 以下沒有Levy */
             // GWO step 3 沒有Levy
-            // GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000;
-            // GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000;
-            // GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000;
-            // GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000;
+            GWO[i][0] = Math.round(((X1[0]+X2[0]+X3[0])/3)*10000)/10000;
+            GWO[i][1] = Math.round(((X1[1]+X2[1]+X3[1])/3)*10000)/10000;
+            GWO[i][2] = Math.round(((X1[2]+X2[2]+X3[2])/3)*10000)/10000;
+            GWO[i][3] = Math.round(((X1[3]+X2[3]+X3[3])/3)*10000)/10000;
             // console.log("沒有Levy:",GWO[i][0],",",GWO[i][1],",",GWO[i][2],",",GWO[i][3]);
+            /* 以上沒有Levy */
 
-            // 計算LevyFlight的RFMP隨機行走值
-            for(let z = 0; z < RFMPweight; z++){
-                step = LevyFlight_Mantegna();
-                //step = LevyFlight_Mantegna(Math.floor(Math.random()*3));
-                Levystepsize = 0.01 * step * (GWO[i][z] - BestGWO[z]) ;
-                Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
+            /* 以下有Levy */
+            // // GWO step 3 有Levy
+            // // 計算LevyFlight的RFMP隨機行走值
+            // for(let z = 0; z < RFMPweight; z++){
+            //     step = LevyFlight_Mantegna();
+            //     //step = LevyFlight_Mantegna(Math.floor(Math.random()*3));
+            //     Levystepsize = 0.01 * step * (GWO[i][z] - BestGWO[z]) ;
+            //     Levy.push(Math.round(Levystepsize * randnm_Gaussion()*10000000000)/100000000);
 
-                // console.log("高斯:",randnm_Gaussion());
-                // console.log("stepP:",step);
-                // console.log("LevystepsizeP:",Levystepsize);
-            }
+            //     // console.log("高斯:",randnm_Gaussion());
+            //     // console.log("stepP:",step);
+            //     // console.log("LevystepsizeP:",Levystepsize);
+            // }
             
-            // GWO step 3 有Levy
-            GWO[i][0] = Math.round((((X1[0]+X2[0]+X3[0])/3) + Levy[0])*10000)/10000;
-            GWO[i][1] = Math.round((((X1[1]+X2[1]+X3[1])/3) + Levy[1])*10000)/10000;
-            GWO[i][2] = Math.round((((X1[2]+X2[2]+X3[2])/3) + Levy[2])*10000)/10000;
-            GWO[i][3] = Math.round((((X1[3]+X2[3]+X3[3])/3) + Levy[3])*10000)/10000;
+            // GWO[i][0] = Math.round((((X1[0]+X2[0]+X3[0])/3) + Levy[0])*10000)/10000;
+            // GWO[i][1] = Math.round((((X1[1]+X2[1]+X3[1])/3) + Levy[1])*10000)/10000;
+            // GWO[i][2] = Math.round((((X1[2]+X2[2]+X3[2])/3) + Levy[2])*10000)/10000;
+            // GWO[i][3] = Math.round((((X1[3]+X2[3]+X3[3])/3) + Levy[3])*10000)/10000;
 
-            // console.log("Levy:",Levy);
+            // // console.log("Levy:",Levy);
+            /* 以上有Levy */
+
 
             // 權重值超出界線的修正
             for(let z = 0; z < RFMPweight ; z++){
@@ -1996,7 +2002,7 @@ function GwoLevy(tMax) {
 
         // 重新計算適存值
         DunnIndex();
-        console.log("-------------------------------在 GwoLevy 迭代裡-------------------------------");
+        // console.log("-------------------------------在 GwoLevy 迭代裡-------------------------------");
         if(GWOalpha[4] >　BestGWO[4]){  // 判斷此次迭代是否比最佳解好，有 則取代
             console.log("GWOalpha[4]:",GWOalpha[4]);
             console.log("BestGWO[4]:",　BestGWO[4]);
