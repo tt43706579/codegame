@@ -1,0 +1,19 @@
+{
+    "apps" : [{
+      "name": "codegame", // 在 pm2 裡面要叫什麼名字
+      "cwd": "/Users/den19980107/Desktop/文佑的_git", // 到專案根目錄的位址
+      "script"    : "node server.js", // 要執行的程式
+      "instances" : "1", // 要啟動幾個實體
+      "exec_mode" : "cluster",
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": 3000
+      },
+      "env_production" : {
+         "NODE_ENV": "production",
+         "PORT": 3000
+      },
+      "log_date_format": "YYYY-MM-DD_HH:mm Z",
+      "merge_logs": true
+    }]
+  }
