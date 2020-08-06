@@ -1760,7 +1760,6 @@ router.post('/managementRFMP', function (req, res, next) {
                                 })
                             }
 
-<<<<<<< HEAD
                             
                             /*   start GWO algorithm   */ 
                             /*     開始    灰狼演算法   */ 
@@ -1770,28 +1769,6 @@ router.post('/managementRFMP', function (req, res, next) {
                                 // 產生0~1的亂數 且設成百分比
                                 // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
                                 GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
-=======
-                            if(userlen > 10){
-                                GWOfirstfalg = true; // 還沒產生初始解
-                                /*   start GWO algorithm   */ 
-                                /*     開始    灰狼演算法   */ 
-                                // 隨機產生 GWOSize 組4維初始解
-
-                                for(let i = 0 ; i < GWOSize ; i++){
-                                    // 產生0~1的亂數 且設成百分比
-                                    // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
-                                    GWO[i] = [Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100,Math.round(Math.random()*10000)/100];
-                                }
-
-                                BestGWO=[];
-                                GWOfirstfalg = true;
-                                // 進入灰狼演算法進行迭代
-                                // console.log("-------------------------------現在在 主程式-------------------------------");
-                                GwoLevy(500);
-                                
-                            }else{
-                                BestGWO=[0.5,0.5,0.5,0.5];
->>>>>>> be6171f854682f27f2f63226672684af2832099b
                             }
 
                             BestGWO=[];
