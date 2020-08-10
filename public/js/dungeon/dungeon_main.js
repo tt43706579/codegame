@@ -24,6 +24,9 @@ var mode = "easygame";
 var data, Res_data, width, height;
 var action_code = [],
   action_now = 0;
+var action_code2 = [], action_now2 = 0;
+var action_code3 = [], action_now3 = 0;
+var action_code4 = [], action_now4 = 0;
 var onChanged = false;
 var onChanging = false;
 var stepSpeed = 2,
@@ -31,7 +34,10 @@ var stepSpeed = 2,
   delayResSpeed = 5,
   pipleLineSpeed = 0,
   pipleLineO = 0,
-  tempAction, ActionLen;
+  tempAction, ActionLen,
+  tempAction2, ActionLen2,
+  tempAction3, ActionLen3,
+  tempAction4, ActionLen4;
 var now_PeooleEESW, old_PeooleEESW, now_PeooleEESW2, old_PeooleEESW2, now_PeooleEESW3, old_PeooleEESW3, now_PeooleEESW4, old_PeooleEESW4;
 var now_PeooleX, old_PeooleX, now_PeooleX2, old_PeooleX2, now_PeooleX3, old_PeooleX3, now_PeooleX4, old_PeooleX4;
 var now_PeooleY, old_PeooleY, now_PeooleY2, old_PeooleY2, now_PeooleY3, old_PeooleY3, now_PeooleY4, old_PeooleY4;
@@ -67,6 +73,8 @@ var inputFlag = false;
 var inputNum;
 var userNum = 0;
 var loopNum = 0;
+var moving = false;
+var tplayer;
 // var peopleAtk = equipmentData.weaponLevel[user.weaponLevel].attack;
 // var peopleArmor = equipmentData.armorLevel[user.armorLevel].attack;
 // console.log(peopleAtk, peopleArmor);
@@ -319,7 +327,10 @@ function loadData() {
   edgeToWidth = width / mapSize;
   edgeToHeight = height / mapSize;
   iscreatecanvas = 1;
-  action_now = 0;
+  action_now = 0;   
+  action_now2 = 0;
+  action_now3 = 0;
+  action_now4 = 0;
   peopleGraph = createGraphics(width, height);
   peopleGraph2 = createGraphics(width, height);
   peopleGraph3 = createGraphics(width, height);
@@ -580,14 +591,45 @@ function draw() {
   }
 
   // console.log(createGraphics(width, height));
-
+  if(moving){
+          switch(tplayer){
+              case 1:
+                if(ActionLen == action_now)
+                    moving = false;
+                break;
+              case 2:
+                if(ActionLen2 == action_now2)
+                    moving = false;
+                break;
+              case 3:
+                if(ActionLen3 == action_now3)
+                    moving = false;
+                break;
+              case 4:
+                if(ActionLen4 == action_now4)
+                    moving = false;
+                break;
+          }
+      }
   if (onChanged) {
     // console.log("running");
     if (!onChanging) {
       /*優化部分*/
       ActionLen = action_code.length;
+      ActionLen2 = action_code2.length;
+      ActionLen3 = action_code3.length;
+      ActionLen4 = action_code4.length;
       if (ActionLen - action_now > 0) {
         tempAction = action_code[action_now];
+      }
+      if (ActionLen2 - action_now2 > 0) {
+        tempAction2 = action_code2[action_now2];
+      }
+      if (ActionLen3 - action_now3 > 0) {
+        tempAction3 = action_code3[action_now3];
+      }
+      if (ActionLen4 - action_now4 > 0) {
+        tempAction4 = action_code4[action_now4];
       }
       /*  */
       now_PeooleEESW = old_PeooleEESW;
@@ -602,52 +644,180 @@ function draw() {
       now_PeooleEESW4 = old_PeooleEESW4;
       now_PeooleX4 = old_PeooleX4;
       now_PeooleY4 = old_PeooleY4;
-      stepSpeed = 7; //控制車子速度
+      stepSpeed = 9; //控制車子速度
       //stepSpeed = gameSpeed; //控制車子速度
       //stepSpeed = gameSpeed + 1 + Math.floor(ActionLen / 50); //控制車子速度
       delayResSpeed = 30 - (gameSpeed - 6) * 5;
       //delayResSpeed = 1;
-      turnSpeed = 2 + Math.floor(stepSpeed / 2);
+      turnSpeed =  7+ Math.floor(stepSpeed / 2);
     }
-    while (ActionLen - action_now > 0) {
+    while (ActionLen - action_now > 0 || ActionLen2 - action_now2 > 0 || ActionLen3 - action_now3 > 0 || ActionLen4 - action_now4 > 0) {
+        
+      if(!moving && ActionLen - action_now > 0){
+          tplayer = 1;
+          moving = true;
+      }else if(!moving && ActionLen2 - action_now2 > 0){
+          tplayer = 2;
+          moving = true;
+      }else if(!moving && ActionLen3 - action_now3 > 0){
+          tplayer = 3;
+          moving = true;
+      }else if(!moving && ActionLen4 - action_now4 > 0){
+          tplayer = 4;
+          moving = true;
+      }
       var mapObjectChange = true;
       // console.log(action_now);
       if (pipleLineSpeed > 0) {
         // console.log(pipleLineSpeed);
         --pipleLineSpeed;
       } else if (pipleLineO > 0) {
-        var temp = pipleLineO - 1
-        pipleLineO = -1 * (2 + action_now);
-        action_now = temp;
-        tempAction = action_code[action_now];
+        var temp = pipleLineO - 1;
+        if(tplayer == 1){
+            pipleLineO = -1 * (2 + action_now);
+            action_now = temp;
+            tempAction = action_code[action_now];
+        }else if (tplayer == 2){
+            pipleLineO = -1 * (2 + action_now2);
+            action_now2 = temp;
+            tempAction2 = action_code2[action_now2];
+        }else if (tplayer == 3){
+            pipleLineO = -1 * (2 + action_now3);
+            action_now3 = temp;
+            tempAction3 = action_code3[action_now3];
+        }else if (tplayer == 4){
+            pipleLineO = -1 * (2 + action_now4);
+            action_now4 = temp;
+            tempAction4 = action_code4[action_now4];
+        }
       } else if (pipleLineO < -1) {
         pipleLineO = -1 * (2 + pipleLineO);
-        action_now = pipleLineO;
-        pipleLineO = 0;
-        tempAction = action_code[action_now];
+        if(tplayer == 1){
+            action_now = pipleLineO;
+            pipleLineO = 0;
+            tempAction = action_code[action_now];
+        }else if(tplayer == 2){
+            action_now2 = pipleLineO;
+            pipleLineO = 0;
+            tempAction2 = action_code2[action_now2];
+        }else if(tplayer == 3){
+            action_now3 = pipleLineO;
+            pipleLineO = 0;
+            tempAction3 = action_code3[action_now3];
+        }else if(tplayer == 4){
+            action_now4 = pipleLineO;
+            pipleLineO = 0;
+            tempAction4 = action_code4[action_now4];
+        }    
       }
-
-      var type = tempAction.type;
+      var type, value;
+      if(tplayer == 1){
+        type = tempAction.type;
+        value = tempAction.value;
+      }else if(tplayer == 2){
+        type = tempAction2.type;  
+        value = tempAction2.value;
+      }else if(tplayer == 3){
+        type = tempAction3.type;
+        value = tempAction3.value;
+      }else if(tplayer == 4){
+        type = tempAction4.type;
+        value = tempAction4.value;
+      }
+      
       if (type == "E") {
-        var value = tempAction.value; // 3駛出地圖 4 碰壁 6被炸死  9金幣未完成 10金幣完成  7沒血了
+        //var value = tempAction.value;
+          // 3駛出地圖 4 碰壁 6被炸死  9金幣未完成 10金幣完成  7沒血了
         if (value == 2) {
           gameEndingCode = value;
         } else if (value == 3 || value == 4) {
+          if(tplayer == 1){
+            action_now = ActionLen;
+          }else if(tplayer == 2){
+            action_now2 = ActionLen2;
+          }else if(tplayer == 3){
+            action_now3 = ActionLen3;
+          }else if(tplayer == 4){
+            action_now4 = ActionLen4;
+          }   
           break; //撞壁直接跳出
         } else {
           alert("'E'還未處理,", value);
           console.log("'E'還未處理,", value);
         }
-        ++action_now;
+        if(tplayer == 1){
+            ++action_now;
+        }else if(tplayer == 2){
+            ++action_now2;
+        }else if(tplayer == 3){
+            ++action_now3;
+        }else if(tplayer == 4){
+            ++action_now4;
+        }  
       } else if (type == "M") {
-        if (!(ActionLen > action_now + 1 && action_code[action_now + 1].type == "E" && action_code[action_now + 1].value != 2)) {
-
-          var value = tempAction.value;
+        var run = false;
+        if(tplayer == 1){
+            if(ActionLen > action_now + 1){
+                if(action_code[action_now + 1].type != "E"){
+                    run = true;
+                }
+                else{
+                    if(action_code[action_now + 1].value != 3 && action_code[action_now + 1].value != 4)
+                        run = true;
+                }
+            }
+            else{
+                run = true;
+            }
+        }else if(tplayer == 2){
+            if(ActionLen2 > action_now2 + 1){
+                if(action_code2[action_now2 + 1].type != "E"){
+                    run = true;
+                }
+                else{
+                    if(action_code2[action_now2 + 1].value != 3 && action_code2[action_now2 + 1].value != 4)
+                        run = true;
+                }
+            }
+            else{
+                run = true;
+            }
+        }else if(tplayer == 3){
+            if(ActionLen3 > action_now3 + 1){
+                if(action_code3[action_now3 + 1].type != "E"){
+                    run = true;
+                }
+                else{
+                    if(action_code3[action_now3 + 1].value != 3 && action_code3[action_now3 + 1].value != 4)
+                        run = true;
+                }
+            }
+            else{
+                run = true;
+            }
+        }else if(tplayer == 4){
+            if(ActionLen4 > action_now4 + 1){
+                if(action_code4[action_now4 + 1].type != "E"){
+                    run = true;
+                }
+                else{
+                    if(action_code4[action_now4 + 1].value != 3 && action_code4[action_now4 + 1].value != 4)
+                        run = true;
+                }
+            }
+            else{
+                run = true;
+            }
+            
+        }  
+        //if (!(ActionLen > action_now + 1 && action_code[action_now + 1].type == "E" && action_code[action_now + 1].value != 2)) {
+        if(run){
+          //var value = tempAction.value;
           if (!onChanging) {
             for (var i = 0; i < value.length; ++i) {
               var nowValue = value[i];
               if (nowValue.obj == -1) {
-                if (player == 1) {
+                if (tplayer == 1) {
                   // console.log("old:",old_PeooleX,old_PeooleY,old_PeooleEESW);
                   old_PeooleX = old_PeooleX + nowValue.value[0] * edgeToWidth;
                   old_PeooleY = old_PeooleY + nowValue.value[1] * edgeToHeight;
@@ -657,7 +827,7 @@ function draw() {
                   p1_z = (p1_z + nowValue.value[2] + 4) % 4;
                   //console.log("P1 xyz: ", p1_x, p1_y, p1_z);
                   // console.log("now:",old_PeooleX,old_PeooleY,old_PeooleEESW);
-                } else if (player == 2) {
+                } else if (tplayer == 2) {
                   old_PeooleX2 = old_PeooleX2 + nowValue.value[0] * edgeToWidth;
                   old_PeooleY2 = old_PeooleY2 + nowValue.value[1] * edgeToHeight;
                   old_PeooleEESW2 = old_PeooleEESW2 - nowValue.value[2] * 90;
@@ -665,7 +835,7 @@ function draw() {
                   p2_y = p2_y + nowValue.value[1];
                   p2_z = (p2_z + nowValue.value[2] + 4) % 4;
                   //console.log("P2 xyz: ", p2_x, p2_y, p2_z);
-                } else if (player == 3) {
+                } else if (tplayer == 3) {
                   old_PeooleX3 = old_PeooleX3 + nowValue.value[0] * edgeToWidth;
                   old_PeooleY3 = old_PeooleY3 + nowValue.value[1] * edgeToHeight;
                   old_PeooleEESW3 = old_PeooleEESW3 - nowValue.value[2] * 90;
@@ -673,7 +843,7 @@ function draw() {
                   p3_y = p3_y + nowValue.value[1];
                   p3_z = (p3_z + nowValue.value[2] + 4) % 4;
                   //console.log("P3 xyz: ", p3_x, p3_y, p3_z);
-                } else if (player == 4) {
+                } else if (tplayer == 4) {
                   old_PeooleX4 = old_PeooleX4 + nowValue.value[0] * edgeToWidth;
                   old_PeooleY4 = old_PeooleY4 + nowValue.value[1] * edgeToHeight;
                   old_PeooleEESW4 = old_PeooleEESW4 - nowValue.value[2] * 90;
@@ -698,22 +868,22 @@ function draw() {
               if (nowValue.obj == -1) { //人
                 if (nowValue.value[0] + nowValue.value[1] + nowValue.value[2] == -3) {
                   //-1,-1,-1 丟到世界外
-                  if (player == 1) {
+                  if (tplayer == 1) {
                     now_PeooleX = mapSize * edgeToWidth;
                     now_PeooleY = mapSize * edgeToHeight;
                     old_PeooleX = mapSize * edgeToWidth;
                     old_PeooleY = mapSize * edgeToHeight;
-                  } else if (player == 2) {
+                  } else if (tplayer == 2) {
                     now_PeooleX2 = mapSize * edgeToWidth;
                     now_PeooleY2 = mapSize * edgeToHeight;
                     old_PeooleX2 = mapSize * edgeToWidth;
                     old_PeooleY2 = mapSize * edgeToHeight;
-                  } else if (player == 3) {
+                  } else if (tplayer == 3) {
                     now_PeooleX3 = mapSize * edgeToWidth;
                     now_PeooleY3 = mapSize * edgeToHeight;
                     old_PeooleX3 = mapSize * edgeToWidth;
                     old_PeooleY3 = mapSize * edgeToHeight;
-                  } else if (player == 4) {
+                  } else if (tplayer == 4) {
                     now_PeooleX4 = mapSize * edgeToWidth;
                     now_PeooleY4 = mapSize * edgeToHeight;
                     old_PeooleX4 = mapSize * edgeToWidth;
@@ -722,7 +892,7 @@ function draw() {
                   onChanging = false;
                 } else {
                   if (pipleLineSpeed == 0) {
-                    if (player == 1) {
+                    if (tplayer == 1) {
                       now_PeooleX = now_PeooleX + (stepSpeed * nowValue.value[0]);
                       now_PeooleY = now_PeooleY + (stepSpeed * nowValue.value[1]);
                       now_PeooleEESW = now_PeooleEESW - (turnSpeed * nowValue.value[2]);
@@ -745,7 +915,7 @@ function draw() {
                       /*
 
                       */
-                    } else if (player == 2) {
+                    } else if (tplayer == 2) {
                       now_PeooleX2 = now_PeooleX2 + (stepSpeed * nowValue.value[0]);
                       now_PeooleY2 = now_PeooleY2 + (stepSpeed * nowValue.value[1]);
                       now_PeooleEESW2 = now_PeooleEESW2 - (turnSpeed * nowValue.value[2]);
@@ -765,7 +935,7 @@ function draw() {
                       } else if (dif2 <= stepSpeed) {
                         complementStep = true;
                       }
-                    } else if (player == 3) {
+                    } else if (tplayer == 3) {
                       now_PeooleX3 = now_PeooleX3 + (stepSpeed * nowValue.value[0]);
                       now_PeooleY3 = now_PeooleY3 + (stepSpeed * nowValue.value[1]);
                       now_PeooleEESW3 = now_PeooleEESW3 - (turnSpeed * nowValue.value[2]);
@@ -785,7 +955,7 @@ function draw() {
                       } else if (dif3 <= stepSpeed) {
                         complementStep = true;
                       }
-                    } else if (player == 4) {
+                    } else if (tplayer == 4) {
                       now_PeooleX4 = now_PeooleX4 + (stepSpeed * nowValue.value[0]);
                       now_PeooleY4 = now_PeooleY4 + (stepSpeed * nowValue.value[1]);
                       now_PeooleEESW4 = now_PeooleEESW4 - (turnSpeed * nowValue.value[2]);
@@ -847,9 +1017,17 @@ function draw() {
               }
             }
           }
-        }
+        }  //撞牆跳出
         if (onChanging == false) {
-          ++action_now;
+          if(tplayer == 1){
+            ++action_now;
+          }else if(tplayer == 2){
+            ++action_now2;
+          }else if(tplayer == 3){
+            ++action_now3;
+          }else if(tplayer == 4){
+            ++action_now4;
+          }  
         }
         if (triggerFlag) {
           for (let k = 0; k < 4; k++) {
@@ -890,18 +1068,18 @@ function draw() {
 
       } else if (type == "C") {
         if (onChanging == false) {
-          var value = tempAction.value;
+          //var value = tempAction.value;
           for (var i = 0; i < value.length; ++i) {
             //var o = -1;
             var nowValue = value[i];
             if (nowValue.obj == -1) {
-              if (player == 1) {
+              if (tplayer == 1) {
                 people_init["type"] = nowValue.type;
-              } else if (player == 2) {
+              } else if (tplayer == 2) {
                 people_init2["type"] = nowValue.type;
-              } else if (player == 3) {
+              } else if (tplayer == 3) {
                 people_init3["type"] = nowValue.type;
-              } else if (player == 4) {
+              } else if (tplayer == 4) {
                 people_init4["type"] = nowValue.type;
               }
             } else {
@@ -936,16 +1114,32 @@ function draw() {
           --delayResSpeed;
           if (delayResSpeed < 0) {
             onChanging = false;
-            ++action_now;
+            if(tplayer == 1){
+                ++action_now;
+            }else if(tplayer == 2){
+                ++action_now2;
+            }else if(tplayer == 3){
+                ++action_now3;
+            }else if(tplayer == 4){
+                ++action_now4;
+            }  
           }
         } else {
           onChanging = false;
-          ++action_now;
+          if(tplayer == 1){
+                ++action_now;
+            }else if(tplayer == 2){
+                ++action_now2;
+            }else if(tplayer == 3){
+                ++action_now3;
+            }else if(tplayer == 4){
+                ++action_now4;
+            }  
         }
         updateObjectGraph();
         //socket.emit("update", 2);
       } else if (type == "D") {
-        var value = tempAction.value;
+        //var value = tempAction.value;
         // console.log(mapObject);
         for (var i = 0; i < value.length; ++i) {
           var nowValue = value[i];
@@ -983,7 +1177,15 @@ function draw() {
         // console.log(mapObject);
         updateObjectGraph();
         //socket.emit("update", 2);
-        ++action_now;
+        if(tplayer == 1){
+            ++action_now;
+        }else if(tplayer == 2){
+            ++action_now2;
+        }else if(tplayer == 3){
+            ++action_now3;
+        }else if(tplayer == 4){
+            ++action_now4;
+        }  
       }
       break;
     }
@@ -1523,8 +1725,10 @@ function clearcodeAndInit() {
   textarea_0.value = initCode;
 }
 
-function codeOutputTranstionAction() {
-  var source = decodeOutput;
+function codeOutputTranstionAction(playr,deco) {
+    //decodeOutput = deco;
+  //var source = decodeOutput;
+    var source = deco;
   // console.log(source);
 
   // var temp = new Array();
@@ -1550,7 +1754,8 @@ function codeOutputTranstionAction() {
   temp.length = 0;
 
   // textarea_1.value = tempNew.join('\n');
-  textarea_1.value = decodeOutput;
+  //textarea_1.value = decodeOutput;
+    textarea_1.value = deco;
   closeLoadingView();
   var forgetDel = 0;
 
@@ -1844,7 +2049,7 @@ function codeOutputTranstionAction() {
       }
       temp.push(spaceTranstion);
     } else if (spaceT[0] == 'S') {
-      if (player == userNum) {
+      if (playr == userNum) {
         inputNum = parseInt(spaceT[1]);
         //console.log("inputNum: ", inputNum);
         inputFlag = true;
@@ -1859,15 +2064,36 @@ function codeOutputTranstionAction() {
   // temp = tempNew.slice(0);
   // timeD = new Date().getTime();
   if (temp.length > 0) {
+    if(!moving){
     onChanged = true;
     onChanging = false;
-    action_code = temp;
+    }
     gameEndingCode = 0;
-    action_now = 0;
+    if(playr == 1){
+        action_code = temp;
+        action_now = 0;
+        console.log("1:",action_code);
+    }
+    else if(playr == 2){
+        action_code2 = temp;
+        action_now2 = 0;
+        console.log("2:",action_code2);
+    }
+    else if(playr == 3){
+        action_code3 = temp;
+        action_now3 = 0;
+    }
+    else if(playr == 4){
+        action_code4 = temp;
+        action_now4 = 0;
+    }
     //endgame();
     //console.log("指令動作:", action_code);
   } else {
     action_code = [];
+    action_code2 = [];
+    action_code3 = [];
+    action_code4 = [];
     gameEndingCode = 0;
     onChanged = false;
     onChanging = false;

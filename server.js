@@ -257,7 +257,7 @@ io.of('/rooms').on('connection', function(socket) {
 
   socket.on('ready', function(roomId) {
     Room.findRoomId(roomId, function(err, room) {
-      if (room.connections.length == 4) { //這裡決定”準備房間”要幾個人都按開始鍵才會進入”遊戲房間“
+      if (room.connections.length == 2) { //這裡決定”準備房間”要幾個人都按開始鍵才會進入”遊戲房間“
         const result = room.connections.every(x => x.playerStatus == 1); //核對是否房內四人的遊戲狀態都是1(準備中)，如果符合，result會為true
         if (result) {
           GameRoom.create({ //創造”遊戲房間“的資料庫
