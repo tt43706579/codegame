@@ -3,7 +3,7 @@
   height: 50%;
   color: none;
   position: absolute;
-  top: 30%;
+  top: 22.5%;
   left: 10%;
 }
 .castle_blockly input[type="button"]{
@@ -21,8 +21,8 @@
 }
 .castle_code{
   position: absolute;
-  top: 5%;
-  left: 39%;
+  top: 0%;
+  left: 37.5%;
   width: 22%;
   height: 50%;
   color: none;
@@ -42,7 +42,7 @@
 }
 .unCastle_code{
   position: absolute;
-  top: 5%;
+  top: 0%;
   left: 39%;
   width: 22%;
   height: 50%;
@@ -63,7 +63,7 @@
 }
 .castle_link{
   position: absolute;
-  top: 30%;
+  top: 22.5%;
   right: 10%;
   width: 22%;
   height: 50%;
@@ -133,7 +133,7 @@
   width: 22%;
   height: 40%;
   position: absolute;
-  top:60%;
+  top:52.5%;
   left:37%;
 }
 
