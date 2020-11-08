@@ -1462,17 +1462,17 @@ function blocklyUsable(thisClassID, thisValue) {
       blockType = "switch(&nbsp){...}<br>";
       b.setAttribute("onclick", "insertAtCursor('switch(){}');");
       break;
-    case "becameCar(&nbsp)":
-      blockType = "becameCar(&nbsp)<br>";
-      b.setAttribute("onclick", "insertAtCursor('becameCar();');");
+    case "becomeCar(&nbsp)":
+      blockType = "becomeCar(&nbsp)<br>";
+      b.setAttribute("onclick", "insertAtCursor('becomeCar();');");
       break;
-    case "becameTank(&nbsp)":
-      blockType = "becameTank(&nbsp)<br>";
-      b.setAttribute("onclick", "insertAtCursor('becameTank();');");
+    case "becomeTank(&nbsp)":
+      blockType = "becomeTank(&nbsp)<br>";
+      b.setAttribute("onclick", "insertAtCursor('becomeTank();');");
       break;
-    case "becameShip(&nbsp)":
-      blockType = "becameShip(&nbsp)<br>";
-      b.setAttribute("onclick", "insertAtCursor('becameShip();');");
+    case "becomeShip(&nbsp)":
+      blockType = "becomeShip(&nbsp)<br>";
+      b.setAttribute("onclick", "insertAtCursor('becomeShip();');");
       break;
     case "getKeyArray(&nbsp)":
       blockType = "getKeyArray(&nbsp)<br>";
@@ -3711,13 +3711,13 @@ function loadDict() {
                 "value":"call"
               },
               {
-                "value":"becameCar(&nbsp)"
+                "value":"becomeCar(&nbsp)"
               },
               {
-                "value":"becameTank(&nbsp)"
+                "value":"becomeTank(&nbsp)"
               },
               {
-                "value":"becameShip(&nbsp)"
+                "value":"becomeShip(&nbsp)"
               },
               {
                 "value":"getKeyArray(&nbsp)"
@@ -4452,13 +4452,13 @@ function loadDict() {
                 "value":"call"
               },
               {
-                "value":"becameCar(&nbsp)"
+                "value":"becomeCar(&nbsp)"
               },
               {
-                "value":"becameTank(&nbsp)"
+                "value":"becomeTank(&nbsp)"
               },
               {
-                "value":"becameShip(&nbsp)"
+                "value":"becomeShip(&nbsp)"
               },
               {
                 "value":"getKeyArray(&nbsp)"
