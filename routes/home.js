@@ -1418,7 +1418,7 @@ var Rday;
 var RFtaskStack = [];
 var GWOSize = 12,
     RFMPweight = 4,
-    PSOSize = 40;
+    PSOSize = 12;
 var GWO = []; // 灰狼演算法陣列裡存 [權重值R,權重值F,權重值M,權重值P,fitness,持續型群心,潛力型群心,衝刺型群心,扶持型群心,衝刺型群心, 分群人數,持續型人數,潛力型人數,衝刺型人數,扶持型人數,關懷型人數,不在區間內人數]
 //                                 [   0  ,   1   ,   2  ,   3   ,   4   ,    5    ,     6    ,    7    ,    8     ,    9    ,     10  ,    11   ,    12   ,    13    ,     14  ,    15   ,      16     ]
 var PSO_init = []; // 粒子群演算法陣列裡存 [ 速度  ,權重值F,權重值M,權重值P,fitness,持續型群心,潛力型群心,衝刺型群心,扶持型群心,衝刺型群心, 分群人數,持續型人數,潛力型人數,衝刺型人數,扶持型人數,關懷型人數,不在區間內人數]
@@ -1735,40 +1735,40 @@ router.post('/managementRFMP', function(req, res, next) {
                                         })
                                     }
 
-                                    // /*   start PSO algorithm   */
-                                    // /*     開始    粒子群最佳化演算法   */
-                                    // // 隨機產生 PSOSize 組3維初始解+速度
+                                    /*   start PSO algorithm   */
+                                    /*     開始    粒子群最佳化演算法   */
+                                    // 隨機產生 PSOSize 組3維初始解+速度
 
-                                    // for (let i = 0; i < PSOSize; i++) {
-                                    //     // 產生0~1的亂數 且設成百分比
-                                    //     // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
-                                    //     PSO_init[i] = [Math.round((Math.random() - 0.5) * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100];
-                                    //     // console.log(PSO_init[i]);
-                                    // }
-
-                                    // BestPSO = [];
-                                    // // 進入粒子群最佳化進行迭代
-                                    // PSO(1000);
-                                    // /*     結束    粒子群最佳化演算法   */
-                                    // /*   End PSO algorithm   */
-
-
-                                    /*   start GWO algorithm   */
-                                    /*     開始    灰狼演算法   */
-                                    // 隨機產生 GWOSize 組4維初始解
-
-                                    for (let i = 0; i < GWOSize; i++) {
+                                    for (let i = 0; i < PSOSize; i++) {
                                         // 產生0~1的亂數 且設成百分比
                                         // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
-                                        GWO[i] = [Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100];
+                                        PSO_init[i] = [Math.round((Math.random() - 0.5) * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100];
+                                        // console.log(PSO_init[i]);
                                     }
 
-                                    BestGWO = [];
-                                    isLeavy = false; // true表示有萊維飛行   false表示沒有萊維飛行
-                                    // 進入灰狼演算法進行迭代
-                                    GwoLevy(1000);
-                                    /*     結束    灰狼演算法   */
-                                    /*   End GWO algorithm   */
+                                    BestPSO = [];
+                                    // 進入粒子群最佳化進行迭代
+                                    PSO(1000);
+                                    /*     結束    粒子群最佳化演算法   */
+                                    /*   End PSO algorithm   */
+
+
+                                    // /*   start GWO algorithm   */
+                                    // /*     開始    灰狼演算法   */
+                                    // // 隨機產生 GWOSize 組4維初始解
+
+                                    // for (let i = 0; i < GWOSize; i++) {
+                                    //     // 產生0~1的亂數 且設成百分比
+                                    //     // Math.round(Math.random()*100)/100 是為了產生0~1的初始解，且取到小數第4位，再將其設為百分比
+                                    //     GWO[i] = [Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100, Math.round(Math.random() * 10000) / 100];
+                                    // }
+
+                                    // BestGWO = [];
+                                    // isLeavy = false; // true表示有萊維飛行   false表示沒有萊維飛行
+                                    // // 進入灰狼演算法進行迭代
+                                    // GwoLevy(1000);
+                                    // /*     結束    灰狼演算法   */
+                                    // /*   End GWO algorithm   */
 
                                     /* 不跑演算法時在使用的 */
                                     // BestGWO=[50,50,50,50];
@@ -1784,25 +1784,25 @@ router.post('/managementRFMP', function(req, res, next) {
                                     TypeNumber = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                                     // 計算 RFMP值 以及 學習者類型判斷
                                     for (let i = 0; i < UserRFMP.length; i++) {
-                                        /* GWO 在用的計算 */
-                                        if (UserRFMP[i][14] >= BestGWO[0]) { UserRFMP[i][9] = 1; } // UserRFMP[index][14] 存 R%，BestGWO[0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
-                                        else { UserRFMP[i][9] = 0; }
-                                        if (UserRFMP[i][15] >= BestGWO[1]) { UserRFMP[i][10] = 1; } // UserRFMP[index][15] 存 F%，BestGWO[1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
-                                        else { UserRFMP[i][10] = 0; }
-                                        if (UserRFMP[i][16] >= BestGWO[2]) { UserRFMP[i][11] = 1; } // UserRFMP[index][16] 存 M%，BestGWO[2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
-                                        else { UserRFMP[i][11] = 0; }
-                                        if (UserRFMP[i][17] >= BestGWO[3]) { UserRFMP[i][12] = 1; } // UserRFMP[index][17] 存 P%，BestGWO[3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
-                                        else { UserRFMP[i][12] = 0; }
-
-                                        // /* PSO 在用的計算 */
-                                        // if (UserRFMP[i][14] >= BestPSO[0]) { UserRFMP[i][9] = 1; } // UserRFMP[index][14] 存 R%，BestGWO[0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
+                                        // /* GWO 在用的計算 */
+                                        // if (UserRFMP[i][14] >= BestGWO[0]) { UserRFMP[i][9] = 1; } // UserRFMP[index][14] 存 R%，BestGWO[0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
                                         // else { UserRFMP[i][9] = 0; }
-                                        // if (UserRFMP[i][15] >= BestPSO[1]) { UserRFMP[i][10] = 1; } // UserRFMP[index][15] 存 F%，BestGWO[1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
+                                        // if (UserRFMP[i][15] >= BestGWO[1]) { UserRFMP[i][10] = 1; } // UserRFMP[index][15] 存 F%，BestGWO[1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
                                         // else { UserRFMP[i][10] = 0; }
-                                        // if (UserRFMP[i][16] >= BestPSO[2]) { UserRFMP[i][11] = 1; } // UserRFMP[index][16] 存 M%，BestGWO[2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
+                                        // if (UserRFMP[i][16] >= BestGWO[2]) { UserRFMP[i][11] = 1; } // UserRFMP[index][16] 存 M%，BestGWO[2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
                                         // else { UserRFMP[i][11] = 0; }
-                                        // if (UserRFMP[i][17] >= BestPSO[3]) { UserRFMP[i][12] = 1; } // UserRFMP[index][17] 存 P%，BestGWO[3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
+                                        // if (UserRFMP[i][17] >= BestGWO[3]) { UserRFMP[i][12] = 1; } // UserRFMP[index][17] 存 P%，BestGWO[3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
                                         // else { UserRFMP[i][12] = 0; }
+
+                                        /* PSO 在用的計算 */
+                                        if (UserRFMP[i][14] >= BestPSO[0]) { UserRFMP[i][9] = 1; } // UserRFMP[index][14] 存 R%，BestGWO[0] 存 random R %，UserRFMP[i][9] 判斷 0/1 (L/H)
+                                        else { UserRFMP[i][9] = 0; }
+                                        if (UserRFMP[i][15] >= BestPSO[1]) { UserRFMP[i][10] = 1; } // UserRFMP[index][15] 存 F%，BestGWO[1] 存 random F %，UserRFMP[i][10] 判斷 0/1 (L/H)
+                                        else { UserRFMP[i][10] = 0; }
+                                        if (UserRFMP[i][16] >= BestPSO[2]) { UserRFMP[i][11] = 1; } // UserRFMP[index][16] 存 M%，BestGWO[2] 存 random M %，UserRFMP[i][11] 判斷 0/1 (L/H)
+                                        else { UserRFMP[i][11] = 0; }
+                                        if (UserRFMP[i][17] >= BestPSO[3]) { UserRFMP[i][12] = 1; } // UserRFMP[index][17] 存 P%，BestGWO[3] 存 random P %，UserRFMP[i][12] 判斷 0/1 (L/H)
+                                        else { UserRFMP[i][12] = 0; }
 
                                         if (UserRFMP[i][5] == -1) { UserRFMP[i][9] = -1; } // UserRFMP[index][9] 存 R值
                                         if (UserRFMP[i][6] == -1) { UserRFMP[i][10] = -1; } // UserRFMP[index][10] 存 F值
@@ -1876,8 +1876,8 @@ router.post('/managementRFMP', function(req, res, next) {
                                     // console.log("-------------------------------回到 主程式-------------------------------");
                                     console.log("TypeNumber:", TypeNumber);
                                     console.log("最佳解:");
-                                    // console.log(BestPSO);
-                                    console.log(BestGWO);
+                                    console.log(BestPSO);
+                                    // console.log(BestGWO);
                                     for (let i = 0; i < UserRFMP.length; i++) {
                                         User.updateLearnerType(UserRFMP[i][0], UserRFMP[i][13], function(err, record) {
                                             if (err) throw err;
