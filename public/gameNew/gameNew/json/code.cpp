@@ -1,6 +1,5 @@
 #include <vector>
 #include <iostream>
-#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #define SIZE 256
@@ -544,7 +543,7 @@ void turnLeft()
 		cout << "$M,,-1,,0,0,0";
 	}
 }
-void becomeCar()
+void becameCar()
 {
 	peopleAdr[6] = 0;
 	cout << "$C,,-1,,car ";
@@ -553,7 +552,7 @@ void becomeCar()
 	int dx = peopleAdr[0], dy = peopleAdr[1];
 	actionJudgeNextAdr(dx, dy);
 }
-void becomeTank()
+void becameTank()
 {
 	peopleAdr[6] = 1;
 	cout << "$C,,-1,,tank ";
@@ -562,7 +561,7 @@ void becomeTank()
 	int dx = peopleAdr[0], dy = peopleAdr[1];
 	actionJudgeNextAdr(dx, dy);
 }
-void becomeShip()
+void becameShip()
 {
 	peopleAdr[6] = 2;
 	cout << "$C,,-1,,bot ";
@@ -730,7 +729,7 @@ void input_init()
 }
 void getBox(char *str)
 {
-	for (int i = 0; i <= treasureStr.length(); i++)
+	for (int i = 0; i < treasureStr.length(); i++)
 	{
 		str[i] = treasureStr[i];
 	}

@@ -1163,12 +1163,12 @@ function updateObjectGraph() {
             objectGraph.image(pg, dx, dy, edgeToWidth, edgeToHeight);
             pg.pop();
         }
-        /*else if (obj["type"] == "unlock2" || obj["type"] == "unlockfail2") {
+        else if (obj["type"] == "unlock2" || obj["type"] == "unlockfail2") {
             dx = obj["postion"][0] * edgeToWidth;
             dy = (obj["postion"][1] - 0.5) * edgeToHeight;
 
             objectGraph.image(img, dx, dy, edgeToWidth * 1.5, edgeToHeight * 1.5);
-        }*/
+        }
         else if (obj["type"] == "HPandArmor" || obj["type"] == "HP") {
             HPObject.push(obj);
         }
