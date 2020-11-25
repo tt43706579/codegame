@@ -298,7 +298,6 @@ function sendLoadUsernameMap() {
             }
             completallUserData = allUserData.slice(0);
             createLevelTable(mapData);
-
         }
     })
 }
