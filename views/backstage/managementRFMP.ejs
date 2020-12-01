@@ -29,21 +29,24 @@
                 <h1 class="titleH1">學習成效分析</h1>
                 <input type="button" value="" id="goBack3" onclick="location.href='management';">
                 <select id="timeSelect" name="">
-            <option value="all">&nbsp&nbsp&nbsp條&nbsp列&nbsp式</option>
-            <option value="all">&nbsp&nbsp&nbsp立&nbsp體&nbsp圖</option>
-          </select>
+                    <option value="all">&nbsp條&nbsp列&nbsp式</option>
+                    <option value="all">&nbsp立&nbsp體&nbsp圖</option>
+                </select>
                 <div class="search-box">
                     <select id="selectType" name="">
-              <option value="all">&nbsp&nbsp&nbsp帳&nbsp號</option>
-              <option value="canPlay">&nbsp&nbsp&nbsp名&nbsp稱</option>
-              <option value="canPlay">&nbsp&nbsp&nbsp信&nbsp箱</option>
-              <option value="canPlay">&nbsp&nbsp&nbsp學&nbsp習&nbsp者&nbsp類&nbsp型</option>
-            </select>
+                        <option value="all">&nbsp&nbsp&nbsp帳&nbsp號</option>
+                        <option value="canPlay">&nbsp&nbsp&nbsp名&nbsp稱</option>
+                        <option value="canPlay">&nbsp&nbsp&nbsp信&nbsp箱</option>
+                        <option value="canPlay">&nbsp&nbsp&nbsp學&nbsp習&nbsp者&nbsp類&nbsp型</option>
+                    </select>
+
                     <input class="search-text" type="search" name="" id="searchTextBox" placeholder="搜尋" onsearch="searchFunc()">
                     <a class="search-btn" href="#">
                         <i class="fas fa-search"></i>
                     </a>
+
                 </div>
+
                 <div class="timeselectBarDiv">
                     <table class="timeselectBar">
                         <tr>
@@ -51,26 +54,26 @@
                                 起：<input type="date" id="timeStart" value=""> 訖：
                                 <input type="date" id="timeEnd" value="">
                                 <input type="button" id="calculateBtn" value="    計算    " onclick="TimeSelectFunc()">
-<<<<<<< HEAD
-                                <input type="button" id="calculateBtn" value="    匯出FMP的csv    " onclick="ExportFMPCSV()">
-=======
                                 <input type="button" id="calculateBtn" value="FMP匯出" onclick="ExportFMP()">
->>>>>>> fe4f15d... 解決 登入無法載入頁面問題
+
                             </td>
                         </tr>
                     </table>
                 </div>
+
+
+
+
                 <div id="createrDiv">
                     <table id="lostCreateTable" border=5 RULES=ALL>
                         <tr>
                             <td class="td01" onclick="changeTdName(this)">使用者帳號</td>
                             <td class="td02" onclick="changeTdName(this)">使用者名稱</td>
                             <td class="td03" onclick="changeTdName(this)">信箱</td>
-                            <td class="td04" onclick="changeTdName(this)">R %</td>
-                            <td class="td05" onclick="changeTdName(this)">F %</td>
-                            <td class="td06" onclick="changeTdName(this)">M %</td>
-                            <td class="td07" onclick="changeTdName(this)">P %</td>
-                            <td class="td08" onclick="changeTdName(this)">學習者類型</td>
+                            <td class="td04" onclick="changeTdName(this)">F %</td>
+                            <td class="td05" onclick="changeTdName(this)">M %</td>
+                            <td class="td06" onclick="changeTdName(this)">P %</td>
+                            <td class="td07" onclick="changeTdName(this)">學習者類型</td>
                         </tr>
                     </table>
                 </div>

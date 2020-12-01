@@ -209,7 +209,7 @@ function TimeSelectFunc() {
     }
 }
 
-function ExportFMPCSV() {
+function ExportFMP() {
     var scriptData = {
         type: "LoadUser",
     }
@@ -288,11 +288,10 @@ function sendLoadUsernameMap() {
                     td01: obj.username,
                     td02: obj.name,
                     td03: obj.email,
-                    td04: obj.Rscore,
-                    td05: obj.Fscore,
-                    td06: obj.Mscore,
-                    td07: obj.Pscore,
-                    td08: obj.LearnerType,
+                    td04: obj.Fscore,
+                    td05: obj.Mscore,
+                    td06: obj.Pscore,
+                    td07: obj.LearnerType,
                 }
                 mapData.push(script);
             }
@@ -349,16 +348,14 @@ function createLevelTable(scriptData) {
                 document.getElementById("input0" + i + j).value = obj.td02;
             } else if (j == 3) { /*使用者信箱*/
                 document.getElementById("input0" + i + j).value = obj.td03;
-            } else if (j == 4) { /*R評分*/
+            } else if (j == 4) { /*F評分*/
                 document.getElementById("input0" + i + j).value = obj.td04;
-            } else if (j == 5) { /*F評分*/
+            } else if (j == 5) { /*M評分*/
                 document.getElementById("input0" + i + j).value = obj.td05;
-            } else if (j == 6) { /*M評分*/
+            } else if (j == 6) { /*P評分*/
                 document.getElementById("input0" + i + j).value = obj.td06;
-            } else if (j == 7) { /*F評分*/
+            } else if (j == 7) { /*學習者類型*/
                 document.getElementById("input0" + i + j).value = obj.td07;
-            } else if (j == 8) { /*學習者類型*/
-                document.getElementById("input0" + i + j).value = obj.td08;
             }
             divTag = document.getElementById("tr" + i);
         }
@@ -527,11 +524,10 @@ function updateMapData(res) {
             td01: obj.username,
             td02: obj.name,
             td03: obj.email,
-            td04: obj.Rscore,
-            td05: obj.Fscore,
-            td06: obj.Mscore,
-            td07: obj.Pscore,
-            td08: obj.LearnerType
+            td04: obj.Fscore,
+            td05: obj.Mscore,
+            td06: obj.Pscore,
+            td07: obj.LearnerType,
         }
 
         mapData.push(script);
@@ -554,7 +550,6 @@ function updateLevelTable(scriptData) {
             document.getElementById("input0" + i + "5").value = obj.td05;
             document.getElementById("input0" + i + "6").value = obj.td06;
             document.getElementById("input0" + i + "7").value = obj.td07;
-            document.getElementById("input0" + i + "8").value = obj.td08;
 
             if ((i % 2) == 0) {
                 document.getElementById("lostUserCreateTable" + i).style.backgroundColor = "#F0E0CF";
@@ -597,18 +592,16 @@ function updateLevelTable(scriptData) {
                 } else if (j == 3) { /*使用者信箱*/
                     document.getElementById("input0" + i + j).value = obj.td03;
                     // document.getElementById("td0" + i + j).innerHTML = "karta1335618@gmail.com";
-                } else if (j == 4) { /*R評分*/
+                } else if (j == 4) { /*F評分*/
                     document.getElementById("input0" + i + j).value = obj.td04;
                     // document.getElementById("td0" + i + j).innerHTML = "50";
-                } else if (j == 5) { /*F評分*/
+                } else if (j == 5) { /*M評分*/
                     document.getElementById("input0" + i + j).value = obj.td05;
                     // document.getElementById("td0" + i + j).innerHTML = "13";
-                } else if (j == 6) { /*M評分*/
+                } else if (j == 6) { /*P評分*/
                     document.getElementById("input0" + i + j).value = obj.td06;
-                } else if (j == 7) { /*F評分*/
+                } else if (j == 7) { /*學習者類型*/
                     document.getElementById("input0" + i + j).value = obj.td07;
-                } else if (j == 8) { /*學習者類型*/
-                    document.getElementById("input0" + i + j).value = obj.td08;
                 }
                 divTag = document.getElementById("tr" + i);
             }
